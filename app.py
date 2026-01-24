@@ -6,7 +6,7 @@ import plotly.express as px
 # 1. PAGE CONFIGURATION
 # ==========================================
 st.set_page_config(
-    page_title="Kuala Lumpur Curated Food & Coffee Recommendation",
+    page_title="Kuala Lumpur Curated Restaurant Recommendation",
     page_icon="🍽️",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -38,8 +38,8 @@ st.markdown("""
     /* 4. ERROR & WARNING BOXES (FIXED CONTRAST) */
     /* Forces these boxes to be white so they don't blend into the pink background */
     .stAlert {
-        background-color: #FFFFFF;
-        color: #355C7D;
+        background-color: #8E3563;
+        color: #F7F5EB;
         border: 2px solid #355C7D;
         border-radius: 10px;
     }
