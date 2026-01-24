@@ -114,13 +114,11 @@ if page == "Best of The Best":
     
     # Interactive Table
     st.dataframe(
-        top_restaurants[['restaurant', 'avg_rating', 'review_count', 'western_cuisine', 'asian_cuisine', 'service']],
+        top_restaurants[['restaurant', 'avg_rating', 'review_count', 'service']],
         column_config={
             "restaurant": "Restaurant Name",
             "avg_rating": st.column_config.NumberColumn("Stars", format="%.2f ⭐"),
             "review_count": st.column_config.NumberColumn("Reviews", format="%d 👤"),
-            "western_cuisine": st.column_config.ProgressColumn("Western Score", min_value=1, max_value=5),
-            "asian_cuisine": st.column_config.ProgressColumn("Asian Score", min_value=1, max_value=5),
             "service": st.column_config.LineChartColumn("Service Sentiment")
         },
         hide_index=True,
