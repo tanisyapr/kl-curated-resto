@@ -39,7 +39,7 @@ st.markdown("""
     /* Forces these boxes to be white so they don't blend into the pink background */
     .stAlert {
         background-color: #8E3563;
-        color: #FFFFFF;
+        color: #F7F5EB;
         border: 2px solid #355C7D;
         border-radius: 10px;
     }
@@ -60,7 +60,7 @@ st.markdown("""
     }
     .stTabs [aria-selected="true"] {
         background-color: #8E3563;
-        color: #355C7D;
+        color: #F7F5EB;
         border: 2px solid #355C7D;
         font-weight: bold;
     }
