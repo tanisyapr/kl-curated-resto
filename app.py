@@ -59,7 +59,7 @@ st.markdown("""
         padding-bottom: 10px;
     }
     .stTabs [aria-selected="true"] {
-        background-color: #F7F5EB;
+        background-color: #8E3563;
         color: #355C7D;
         border: 2px solid #355C7D;
         font-weight: bold;
