@@ -39,7 +39,7 @@ st.markdown("""
     /* Forces these boxes to be white so they don't blend into the pink background */
     .stAlert {
         background-color: #8E3563;
-        color: #F7F5EB;
+        color: #FFFFFF;
         border: 2px solid #355C7D;
         border-radius: 10px;
     }
