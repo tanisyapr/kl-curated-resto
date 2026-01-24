@@ -17,12 +17,12 @@ st.markdown("""
 <style>
     /* 1. MAIN APP BACKGROUND */
     .stApp {
-        background-color: #EAC7C7;
+        background-color: #1F234E;
     }
 
     /* 2. METRIC CARD (Dark Blue with Cream Text) */
     .metric-card {
-        background-color: #355C7D;
+        background-color: #8e3563;
         padding: 20px;
         border-radius: 10px;
         color: #F7F5EB;
@@ -51,7 +51,7 @@ st.markdown("""
     .stTabs [data-baseweb="tab"] {
         height: 50px;
         white-space: pre-wrap;
-        background-color: #355C7D;
+        background-color: #8E3563;
         color: #F7F5EB;
         border-radius: 4px 4px 0px 0px;
         gap: 1px;
