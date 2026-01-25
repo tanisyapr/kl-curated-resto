@@ -67,9 +67,13 @@ st.markdown("""
         color: white;
     }
 
-    /* 7. SLIDERS */
+    /* 7. SLIDERS & SELECTIONS */
     div.stSlider > div[data-baseweb="slider"] > div > div > div[role="slider"]{
         background-color: #F8B195;
+    }
+    span[data-baseweb="tag"] {
+        background-color: #F8B195 !important;
+        color: #355C7D !important;
     }
 
     /* 8. TABS */
@@ -117,12 +121,12 @@ st.sidebar.title("KL Dining Assistant")
 st.sidebar.markdown("By Tanisya Pristi Azrelia")
 st.sidebar.caption("Master in Data Science - Universiti Malaya")
 st.sidebar.markdown("---")
-page = st.sidebar.radio("Navigate", ["Best of The Best", "Find Your Restaurant", "Methodology & Insights"])
+page = st.sidebar.radio("Navigate", ["🏆 Best of The Best", "🔍 Find Your Restaurant", "📊 Methodology & Insights"])
 
 # ==========================================
 # PAGE 1: HOME & HALL OF FAME
 # ==========================================
-if page == "Best of The Best":
+if page == "🏆 Best of The Best":
     st.title("KL Restaurant Recommendation System")
     st.markdown("""
     **Welcome!** This platform uses advanced machine learning (LDA & RoBERTa) to analyze thousands of reviews.
@@ -156,24 +160,31 @@ if page == "Best of The Best":
 # ==========================================
 # PAGE 2: RECOMMENDATION ENGINE
 # ==========================================
-elif page == "Find Your Restaurant":
+elif page == "🔍 Find Your Restaurant":
     st.title("Where should you eat today in Kuala Lumpur?")
     st.markdown("Choose your dining priorities below")
 
     col1, col2 = st.columns([1, 2])
     
     with col1:
-        st.markdown("### Your Priorities (The 5 Qualities)")
+        st.markdown("### 1. Select Your Priorities")
         
-        # 1. The 5 Quality Sliders
-        w_food = st.slider("Food Quality", 0.0, 1.0, 0.8)
-        w_value = st.slider("Value for Money", 0.0, 1.0, 0.5)
-        w_staff = st.slider("Staff Friendliness", 0.0, 1.0, 0.5)
-        w_speed = st.slider("Service Speed", 0.0, 1.0, 0.5)
-        w_exp = st.slider("Dining Experience", 0.0, 1.0, 0.5)
+        # --- NEW: MULTI-SELECT INSTEAD OF SLIDERS ---
+        priorities = st.multiselect(
+            "What matters most to you?",
+            ["Food Quality", "Value for Money", "Staff Friendliness", "Service Speed", "Dining Experience"],
+            default=["Food Quality"] # Default selection
+        )
         
-        st.markdown("### Cuisine Filter (The 2 Categories)")
-        # 2. The Cuisine Filter (Radio Button)
+        # Convert selection to weights (1.0 if selected, 0.0 if not)
+        w_food = 1.0 if "Food Quality" in priorities else 0.0
+        w_value = 1.0 if "Value for Money" in priorities else 0.0
+        w_staff = 1.0 if "Staff Friendliness" in priorities else 0.0
+        w_speed = 1.0 if "Service Speed" in priorities else 0.0
+        w_exp = 1.0 if "Dining Experience" in priorities else 0.0
+        
+        st.markdown("### 2. Cuisine Filter")
+        # Cuisine Filter (Radio Button)
         cuisine_pref = st.radio("Select Type:", ["All Cuisines", "Western/Italian", "Asian/Local"])
         
         st.markdown("---")
@@ -216,7 +227,7 @@ elif page == "Find Your Restaurant":
             st.subheader("Top 5 Recommendations")
             
             if len(results) == 0:
-                st.warning("No matches found. Try selecting 'All Cuisines' or adjusting weights!")
+                st.warning("No matches found. Try selecting 'All Cuisines' or adding priorities!")
                 
             for i, (index, row) in enumerate(results.iterrows()):
                 # Create a card-like container
@@ -237,6 +248,7 @@ elif page == "Find Your Restaurant":
                     c4.metric("Value Score", val_val)
                     
                     # Progress Bar
+                    # Calc max possible score based on how many items were selected
                     max_possible = (w_food + w_value + w_staff + w_speed + w_exp) * 5
                     if max_possible > 0:
                         norm_score = row['final_score'] / max_possible
@@ -262,7 +274,7 @@ elif page == "Find Your Restaurant":
 # ==========================================
 # PAGE 3: METHODOLOGY & INSIGHTS
 # ==========================================
-elif page == "Methodology & Insights":
+elif page == "📊 Methodology & Insights":
     st.title("Methodology & Analysis")
     st.markdown("This is the methodology used for this analysis.")
     
