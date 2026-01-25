@@ -1,80 +1,105 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
+import os
 
 # ==========================================
 # 1. PAGE CONFIGURATION
 # ==========================================
 st.set_page_config(
-    page_title="Kuala Lumpur Curated Restaurant Recommendation",
+    page_title="KL Dining Assistant",
     page_icon="🍽️",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# Custom CSS for aesthetics (High Contrast Version)
+# ==========================================
+# 2. CUSTOM CSS (THEME: #355C7D & #C06C84)
+# ==========================================
 st.markdown("""
 <style>
-    /* 1. MAIN APP BACKGROUND */
+    /* 1. MAIN BACKGROUND (Gradient for a premium look) */
     .stApp {
-        background-color: #1F234E;
+        background: linear-gradient(135deg, #355C7D 0%, #6C5B7B 50%, #C06C84 100%);
+        color: #FFFFFF; /* Default text white */
     }
 
-    /* 2. METRIC CARD (Dark Blue with Cream Text) */
-    .metric-card {
-        background-color: #8e3563;
-        padding: 20px;
-        border-radius: 10px;
-        color: #F7F5EB;
-        box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+    /* 2. HEADINGS */
+    h1, h2, h3, h4, h5, h6 {
+        color: #FFFFFF !important;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.5); /* Shadow for readability */
+        font-family: 'Helvetica Neue', sans-serif;
     }
 
-    /* 3. HEADINGS (Cream with Shadow for readability) */
-    h1, h2, h3 {
-        color: #F7F5EB !important;
-        text-shadow: 2px 2px 0px #355C7D; /* Hard shadow makes it pop against pink */
+    /* 3. METRIC CARDS */
+    div[data-testid="stMetricValue"] {
+        color: #F8B195 !important; /* Soft peach for numbers */
+    }
+    div[data-testid="stMetricLabel"] {
+        color: #FFFFFF !important;
     }
 
-    /* 4. ERROR & WARNING BOXES (FIXED CONTRAST) */
-    /* Forces these boxes to be white so they don't blend into the pink background */
+    /* 4. INFO/SUCCESS BOXES (High Contrast) */
     .stAlert {
-        background-color: #8E3563;
-        color: #F7F5EB;
-        border: 2px solid #355C7D;
+        background-color: rgba(255, 255, 255, 0.95); /* White background */
+        color: #355C7D; /* Dark text for readability */
         border-radius: 10px;
+        border: 2px solid #F8B195;
+    }
+
+    /* 5. SIDEBAR */
+    section[data-testid="stSidebar"] {
+        background-color: #2A3E50; /* Darker blue for contrast */
+        color: #FFFFFF;
     }
     
-    /* 5. TABS */
-    .stTabs [data-baseweb="tab-list"] {
-        gap: 10px;
+    /* 6. BUTTONS */
+    div.stButton > button {
+        background-color: #F8B195;
+        color: #355C7D;
+        font-weight: bold;
+        border-radius: 8px;
+        border: none;
+        padding: 10px 24px;
     }
+    div.stButton > button:hover {
+        background-color: #C06C84;
+        color: white;
+    }
+
+    /* 7. SLIDERS */
+    div.stSlider > div[data-baseweb="slider"] > div > div > div[role="slider"]{
+        background-color: #F8B195;
+    }
+
+    /* 8. TABS */
+    .stTabs [data-baseweb="tab-list"] { gap: 8px; }
     .stTabs [data-baseweb="tab"] {
         height: 50px;
-        white-space: pre-wrap;
-        background-color: #8E3563;
-        color: #F7F5EB;
-        border-radius: 4px 4px 0px 0px;
-        gap: 1px;
-        padding-top: 10px;
-        padding-bottom: 10px;
+        background-color: rgba(0,0,0,0.3);
+        color: #FFFFFF;
+        border-radius: 5px 5px 0px 0px;
     }
     .stTabs [aria-selected="true"] {
-        background-color: #8E3563;
-        color: #F7F5EB;
-        border: 2px solid #F7F5EB;
+        background-color: #F8B195;
+        color: #355C7D;
         font-weight: bold;
     }
 </style>
 """, unsafe_allow_html=True)
 
 # ==========================================
-# 2. DATA LOADING (Updated filename)
+# 3. DATA LOADING
 # ==========================================
 @st.cache_data
 def load_data():
-    # LOADING THE NEW FILENAME
+    # Use the file with text examples if available, otherwise fallback
+    filename = 'streamlitdata_with_text.csv'
+    if not os.path.exists(filename):
+        filename = 'streamlitdata.csv'
+        
     try:
-        df = pd.read_csv('streamlitdata.csv')
+        df = pd.read_csv(filename)
         return df
     except FileNotFoundError:
         return None
@@ -82,13 +107,13 @@ def load_data():
 df = load_data()
 
 if df is None:
-    st.error("⚠️ File 'streamlitdata.csv' not found. Please upload it to the Files sidebar!")
+    st.error("Data file not found! Please upload 'streamlitdata_with_text.csv' to your repository.")
     st.stop()
 
 # ==========================================
-# 3. SIDEBAR NAVIGATION
+# 4. SIDEBAR NAVIGATION
 # ==========================================
-st.sidebar.title("Kuala Lumpur Dining Assistant")
+st.sidebar.title("KL Dining Assistant")
 st.sidebar.markdown("By Tanisya Pristi Azrelia")
 st.sidebar.caption("Master in Data Science - Universiti Malaya")
 st.sidebar.markdown("---")
@@ -98,29 +123,31 @@ page = st.sidebar.radio("Navigate", ["Best of The Best", "Find Your Restaurant",
 # PAGE 1: HOME & HALL OF FAME
 # ==========================================
 if page == "Best of The Best":
-    st.title("Kuala Lumpur Restaurant Recommendation System")
+    st.title("KL Restaurant Recommendation System")
     st.markdown("""
-    Welcome to this page. This platform utilize **machine learning** to help you discover your best dining experience in Kuala Lumpur.
-    We help you to choose your preferred **dining priorities** by applying LDA and sentiment analysis with RoBERTa to get the rating for each topic.
+    **Welcome!** This platform uses advanced machine learning (LDA & RoBERTa) to analyze thousands of reviews.
+    Your dining experience should be personal, so get your recommendation here by choosing your preferences.
     """)
     
-    st.markdown("---")
-    st.subheader("The Hall of Fame!")
-    st.info("These are the best restaurants with high ratings (>4.0) and high reliability (>50 reviews).")
+    st.divider()
+    st.subheader("The Hall of Fame (Top 20)")
+    st.info("These restaurants have Ratings > 4.0 and High Reliability (>50 reviews).")
 
-    # LOGIC: Weighted sort to find true top performers
-    # We filter for >50 reviews to avoid "5.0 star" places with only 1 review
+    # Filter & Sort
     top_restaurants = df[df['review_count'] > 50].sort_values('avg_rating', ascending=False).head(20)
     
-    # Interactive Table
+    # Prepare columns for display
+    cols_config = {
+        "restaurant": "Restaurant Name",
+        "avg_rating": st.column_config.NumberColumn("Stars", format="%.2f"),
+        "review_count": st.column_config.NumberColumn("Reviews", format="%d")
+    }
+    
+    # Show dataframe
     st.dataframe(
-        top_restaurants[['restaurant', 'avg_rating', 'review_count', 'service']],
-        column_config={
-            "restaurant": "Restaurant Name",
-            "avg_rating": st.column_config.NumberColumn("Stars", format="%.2f ⭐"),
-            "review_count": st.column_config.NumberColumn("Reviews", format="%d 👤"),
-            "service": st.column_config.LineChartColumn("Service Sentiment")
-        },
+        top_restaurants,
+        column_order=["restaurant", "avg_rating", "review_count"],
+        column_config=cols_config,
         hide_index=True,
         use_container_width=True,
         height=600
@@ -130,116 +157,145 @@ if page == "Best of The Best":
 # PAGE 2: RECOMMENDATION ENGINE
 # ==========================================
 elif page == "Find Your Restaurant":
-    st.title("Where do you want to eat?")
-    st.markdown("Dining experience should be personal. Customize your search based on what you prioritize the most.")
+    st.title("Where should you eat today in Kuala Lumpur?")
+    st.markdown("Choose your dining priorities below")
 
     col1, col2 = st.columns([1, 2])
     
     with col1:
-        st.subheader("Your Preferences")
-        w_food = st.slider("Food Quality Importance", 0.0, 1.0, 0.8)
-        w_service = st.slider("Service Importance", 0.0, 1.0, 0.5)
-        w_value = st.slider("Value for Money Importance", 0.0, 1.0, 0.5)
+        st.markdown("### Your Priorities (The 5 Qualities)")
+        
+        # 1. The 5 Quality Sliders
+        w_food = st.slider("Food Quality", 0.0, 1.0, 0.8)
+        w_value = st.slider("Value for Money", 0.0, 1.0, 0.5)
+        w_staff = st.slider("Staff Friendliness", 0.0, 1.0, 0.5)
+        w_speed = st.slider("Service Speed", 0.0, 1.0, 0.5)
+        w_exp = st.slider("Dining Experience", 0.0, 1.0, 0.5)
+        
+        st.markdown("### Cuisine Filter (The 2 Categories)")
+        # 2. The Cuisine Filter (Radio Button)
+        cuisine_pref = st.radio("Select Type:", ["All Cuisines", "Western/Italian", "Asian/Local"])
         
         st.markdown("---")
-        cuisine_pref = st.radio("Cuisine Type:", ["Any", "Western/Italian", "Asian/Local"])
-        
-        btn = st.button("Generate Recommendations", type="primary")
+        btn = st.button("Find My Match", type="primary")
 
     with col2:
         if btn:
-            # 1. Calculate Custom Score
-            df['final_score'] = (
-                (df['food_quality'] * w_food) +
-                (df['service'] * w_service) +
-                (df['value'] * w_value)
+            # --- HELPER FUNCTION ---
+            def get_col(name):
+                return df[name] if name in df.columns else 0
+
+            # 1. CALCULATE SCORE
+            score = (
+                (get_col('Food Quality') * w_food) +
+                (get_col('Value for Money') * w_value) +
+                (get_col('Staff Friendliness') * w_staff) +
+                (get_col('Service Speed') * w_speed) +
+                (get_col('Dining Experience') * w_exp)
             )
             
-            # 2. Filter by Cuisine
+            # Save the score
+            df['final_score'] = score
+            
+            # 2. FILTER BY CUISINE
             filtered_df = df.copy()
+            
             if cuisine_pref == "Western/Italian":
-                filtered_df = filtered_df[filtered_df['western_cuisine'] > 3.5]
+                west_col = next((c for c in ['Western Cuisine', 'western_cuisine'] if c in df.columns), None)
+                if west_col:
+                    filtered_df = filtered_df[filtered_df[west_col] > 3.0]
+                    
             elif cuisine_pref == "Asian/Local":
-                filtered_df = filtered_df[filtered_df['asian_cuisine'] > 3.5]
+                asian_col = next((c for c in ['Asian Cuisine', 'asian_cuisine'] if c in df.columns), None)
+                if asian_col:
+                    filtered_df = filtered_df[filtered_df[asian_col] > 3.0]
                 
-            # 3. Get Top 5
+            # 3. SORT & DISPLAY TOP 5
             results = filtered_df.sort_values('final_score', ascending=False).head(5)
             
             st.subheader("Top 5 Recommendations")
+            
+            if len(results) == 0:
+                st.warning("No matches found. Try selecting 'All Cuisines' or adjusting weights!")
+                
             for i, (index, row) in enumerate(results.iterrows()):
+                # Create a card-like container
                 with st.container():
                     st.markdown(f"### #{i+1} {row['restaurant']}")
+                    
+                    # Metrics Row
                     c1, c2, c3, c4 = st.columns(4)
                     c1.metric("Match Score", f"{row['final_score']:.2f}")
-                    c2.metric("⭐ Rating", f"{row['avg_rating']:.1f}")
-                    c3.metric("Food Sentiment", f"{row['food_quality']:.1f}/5")
-                    c4.metric("Service Sentiment", f"{row['service']:.1f}/5")
-                    st.progress(row['final_score'] / (w_food+w_service+w_value)*5 / 5) # Normalized progress bar
-                    st.divider()
+                    c2.metric("Stars", f"{row['avg_rating']:.1f}")
+                    
+                    # Show Food Score if available
+                    food_val = f"{row['Food Quality']:.1f}" if 'Food Quality' in row else "N/A"
+                    c3.metric("Food Score", food_val)
+                    
+                    # Show Value Score if available
+                    val_val = f"{row['Value for Money']:.1f}" if 'Value for Money' in row else "N/A"
+                    c4.metric("Value Score", val_val)
+                    
+                    # Progress Bar
+                    max_possible = (w_food + w_value + w_staff + w_speed + w_exp) * 5
+                    if max_possible > 0:
+                        norm_score = row['final_score'] / max_possible
+                        norm_score = min(1.0, max(0.0, norm_score)) # Clamp to avoid error
+                        st.progress(norm_score)
+                    
+                    # Review Evidence (NO EMOJIS as requested)
+                    with st.expander("See what people actually said (Evidence)"):
+                        # Only show if user cared about it (Weight > 0)
+                        if w_food > 0 and 'Food Quality_text' in row:
+                            st.markdown(f"**Food:** _{row['Food Quality_text']}_")
+                        if w_staff > 0 and 'Staff Friendliness_text' in row:
+                            st.markdown(f"**Staff:** _{row['Staff Friendliness_text']}_")
+                        if w_value > 0 and 'Value for Money_text' in row:
+                            st.markdown(f"**Value:** _{row['Value for Money_text']}_")
+                        if w_speed > 0 and 'Service Speed_text' in row:
+                            st.markdown(f"**Speed:** _{row['Service Speed_text']}_")
+                        if w_exp > 0 and 'Dining Experience_text' in row:
+                            st.markdown(f"**Vibe:** _{row['Dining Experience_text']}_")
+
+                    st.markdown("---")
 
 # ==========================================
 # PAGE 3: METHODOLOGY & INSIGHTS
 # ==========================================
 elif page == "Methodology & Insights":
-    st.title("This section shows methodology used to make this recommendation based on people's reviews")
+    st.title("Methodology & Analysis")
+    st.markdown("This is the methodology used for this analysis.")
     
     tab1, tab2, tab3 = st.tabs(["Topic Modeling (LDA)", "Sentiment (RoBERTa)", "Exploratory Analysis (EDA)"])
     
     # --- TAB 1: LDA vs BERTopic ---
     with tab1:
-        st.header("Why LDA was chosen over BERTopic")
-        st.markdown("After comparing two topic modeling approaches, **LDA (Latent Dirichlet Allocation)** was selected for the final application due to its stability and simple summary capability.")
+        st.header("Why LDA?")
+        st.markdown("We compared LDA vs BERTopic. **LDA was chosen** for its ability to generalize better for broad categories like 'Service' and 'Value'.")
         
-        col1, col2 = st.columns(2)
-        with col1:
-            st.markdown("### LDA")
-            st.success("Selected")
-            st.markdown("""
-            * **Coverage:** 100% of restaurants categorized.
-            * **Consistency:** Produced stable topics (Service, Value, Food).
-            * **Usability:** Broad categories work better for UI filters.
-            """)
-        
-        with col2:
-            st.markdown("### ❌ BERTopic")
-            st.error("Discarded")
-            st.markdown("""
-            * **Coverage:** Only 55% (High outlier rate).
-            * **Issue:** 45% of reviews labeled as 'Noise' (-1).
-            * **Granularity:** 100+ micro-topics (too many options can be confusing for user).
-            """)
-            
-        st.markdown("### Comparative Metrics")
-        data = {
-            'Metric': ['Coverage (%)', 'Coherence Score', 'Interpretability', 'Handling Noise'],
-            'LDA': ['100%', '0.50', 'High (General)', 'Forces assignment'],
-            'BERTopic': ['55%', 'N/A', 'High (Specific)', 'Drops outliers']
-        }
-        st.table(pd.DataFrame(data))
+        c1, c2 = st.columns(2)
+        with c1:
+            st.success("LDA (Selected)")
+            st.markdown("- 100% Coverage\n- Stable Topics\n- Better Interpretability")
+        with c2:
+            st.error("BERTopic (Discarded)")
+            st.markdown("- 45% Data Loss (Outliers)\n- Generate 100+ topics\n- LDA will be harder to deploy and confusing to the users to choose that many topics")
 
-    # --- TAB 2: RoBERTa EVALUATION ---
+    # --- TAB 2: RoBERTa ---
     with tab2:
-        st.header("RoBERTa Sentiment Evaluation")
-        st.markdown("We utilize `twitter-roberta-base-sentiment` to give sentiment score on a 1-5 scale.")
+        st.header("RoBERTa Sentiment Analysis")
+        st.markdown("We fine-tuned `twitter-roberta-base-sentiment` to score reviews on a 1-5 scale.")
+        col1, col2, col3 = st.columns(3)
+        col1.metric("Overall Accuracy", "86.31%")
+        col2.metric("Precision (Positive)", "93%")
+        col3.metric("Recall (Positive)", "96%")
         
-        # METRICS SECTION
-        c1, c2, c3 = st.columns(3)
-        c1.metric("Model Accuracy", "87.4%", "vs Star Ratings")
-        c2.metric("Precision (Positive)", "92%")
-        c3.metric("Precision (Negative)", "84%")
-        
-        st.markdown("---")
-        st.subheader("Confusion Matrix Analysis")
-        st.write("The matrix below shows how well the model predicts user star ratings.")
-        
-        # OPTIONAL: Display Image if it exists
-        import os
         if os.path.exists("confusion_matrix.png"):
-            st.image("confusion_matrix.png", caption="Model Predictions vs Actual User Ratings", width=600)
+            st.image("confusion_matrix.png", caption="Confusion Matrix", width=500)
         else:
-            st.warning("Confusion Matrix image not uploaded. (Upload 'confusion_matrix.png' to see it here)")
+            st.info("Confusion Matrix image not uploaded.")
 
-   # --- TAB 3: EDA ---
+    # --- TAB 3: EDA ---
     with tab3:
         st.header("Exploratory Data Analysis")
         st.markdown("Visualizing the dataset to understand underlying patterns in customer feedback.")
@@ -270,18 +326,22 @@ elif page == "Methodology & Insights":
             # Select numeric columns for correlation
             corr_cols = ['avg_rating', 'food_quality', 'service', 'value', 'western_cuisine', 'asian_cuisine']
             
-            # Compute correlation matrix live
-            corr_matrix = df[corr_cols].corr()
+            # Check if columns exist before correlating
+            available_cols = [c for c in corr_cols if c in df.columns]
             
-            # Heatmap
-            fig_corr = px.imshow(
-                corr_matrix, 
-                text_auto=".2f",
-                aspect="auto",
-                color_continuous_scale="RdBu_r",
-                title="Correlation: Sentiment vs. Overall Rating"
-            )
-            st.plotly_chart(fig_corr, use_container_width=True)
+            if len(available_cols) > 1:
+                # Compute correlation matrix live
+                corr_matrix = df[available_cols].corr()
+                
+                # Heatmap
+                fig_corr = px.imshow(
+                    corr_matrix, 
+                    text_auto=".2f",
+                    aspect="auto",
+                    color_continuous_scale="RdBu_r",
+                    title="Correlation: Sentiment vs. Overall Rating"
+                )
+                st.plotly_chart(fig_corr, use_container_width=True)
             
             st.info("""
             **Insight:** **Food Quality** and **Service** typically show the strongest positive correlation with the Overall Rating. 
