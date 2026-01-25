@@ -121,12 +121,12 @@ st.sidebar.title("KL Dining Assistant")
 st.sidebar.markdown("By Tanisya Pristi Azrelia")
 st.sidebar.caption("Master in Data Science - Universiti Malaya")
 st.sidebar.markdown("---")
-page = st.sidebar.radio("Navigate", ["🏆 Best of The Best", "🔍 Find Your Restaurant", "📊 Methodology & Insights"])
+page = st.sidebar.radio("Navigate", ["Best of The Best", "Find Your Restaurant", "Methodology & Insights"])
 
 # ==========================================
 # PAGE 1: HOME & HALL OF FAME
 # ==========================================
-if page == "🏆 Best of The Best":
+if page == "Best of The Best":
     st.title("KL Restaurant Recommendation System")
     st.markdown("""
     **Welcome!** This platform uses advanced machine learning (LDA & RoBERTa) to analyze thousands of reviews.
@@ -274,7 +274,7 @@ elif page == "🔍 Find Your Restaurant":
 # ==========================================
 # PAGE 3: METHODOLOGY & INSIGHTS
 # ==========================================
-elif page == "📊 Methodology & Insights":
+elif page == "Methodology & Insights":
     st.title("Methodology & Analysis")
     st.markdown("This is the methodology used for this analysis.")
     
