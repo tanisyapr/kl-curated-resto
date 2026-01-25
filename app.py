@@ -18,38 +18,38 @@ st.set_page_config(
 # ==========================================
 st.markdown("""
 <style>
-    /* 1. MAIN BACKGROUND (Gradient for a premium look) */
+    /* 1. MAIN BACKGROUND */
     .stApp {
         background: linear-gradient(135deg, #355C7D 0%, #6C5B7B 50%, #C06C84 100%);
-        color: #FFFFFF; /* Default text white */
+        color: #FFFFFF;
     }
 
     /* 2. HEADINGS */
     h1, h2, h3, h4, h5, h6 {
         color: #FFFFFF !important;
-        text-shadow: 2px 2px 4px rgba(0,0,0,0.5); /* Shadow for readability */
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
         font-family: 'Helvetica Neue', sans-serif;
     }
 
     /* 3. METRIC CARDS */
     div[data-testid="stMetricValue"] {
-        color: #F8B195 !important; /* Soft peach for numbers */
+        color: #F8B195 !important;
     }
     div[data-testid="stMetricLabel"] {
         color: #FFFFFF !important;
     }
 
-    /* 4. INFO/SUCCESS BOXES (High Contrast) */
+    /* 4. INFO/SUCCESS BOXES */
     .stAlert {
-        background-color: rgba(255, 255, 255, 0.95); /* White background */
-        color: #355C7D; /* Dark text for readability */
+        background-color: rgba(255, 255, 255, 0.95);
+        color: #355C7D;
         border-radius: 10px;
         border: 2px solid #F8B195;
     }
 
     /* 5. SIDEBAR */
     section[data-testid="stSidebar"] {
-        background-color: #2A3E50; /* Darker blue for contrast */
+        background-color: #2A3E50;
         color: #FFFFFF;
     }
     
@@ -67,7 +67,7 @@ st.markdown("""
         color: white;
     }
 
-    /* 7. SLIDERS & SELECTIONS */
+    /* 7. WIDGETS */
     div.stSlider > div[data-baseweb="slider"] > div > div > div[role="slider"]{
         background-color: #F8B195;
     }
@@ -75,7 +75,7 @@ st.markdown("""
         background-color: #F8B195 !important;
         color: #355C7D !important;
     }
-
+    
     /* 8. TABS */
     .stTabs [data-baseweb="tab-list"] { gap: 8px; }
     .stTabs [data-baseweb="tab"] {
@@ -97,7 +97,6 @@ st.markdown("""
 # ==========================================
 @st.cache_data
 def load_data():
-    # Use the file with text examples if available, otherwise fallback
     filename = 'streamlitdata_with_text.csv'
     if not os.path.exists(filename):
         filename = 'streamlitdata.csv'
@@ -160,7 +159,7 @@ if page == "Best of The Best":
 # ==========================================
 # PAGE 2: RECOMMENDATION ENGINE
 # ==========================================
-elif page == "🔍 Find Your Restaurant":
+elif page == "Find Your Restaurant":
     st.title("Where should you eat today in Kuala Lumpur?")
     st.markdown("Choose your dining priorities below")
 
@@ -169,14 +168,14 @@ elif page == "🔍 Find Your Restaurant":
     with col1:
         st.markdown("### 1. Select Your Priorities")
         
-        # --- NEW: MULTI-SELECT INSTEAD OF SLIDERS ---
+        # MULTI-SELECT
         priorities = st.multiselect(
             "What matters most to you?",
             ["Food Quality", "Value for Money", "Staff Friendliness", "Service Speed", "Dining Experience"],
-            default=["Food Quality"] # Default selection
+            default=["Food Quality"]
         )
         
-        # Convert selection to weights (1.0 if selected, 0.0 if not)
+        # Convert selection to weights
         w_food = 1.0 if "Food Quality" in priorities else 0.0
         w_value = 1.0 if "Value for Money" in priorities else 0.0
         w_staff = 1.0 if "Staff Friendliness" in priorities else 0.0
@@ -184,7 +183,6 @@ elif page == "🔍 Find Your Restaurant":
         w_exp = 1.0 if "Dining Experience" in priorities else 0.0
         
         st.markdown("### 2. Cuisine Filter")
-        # Cuisine Filter (Radio Button)
         cuisine_pref = st.radio("Select Type:", ["All Cuisines", "Western/Italian", "Asian/Local"])
         
         st.markdown("---")
@@ -192,32 +190,43 @@ elif page == "🔍 Find Your Restaurant":
 
     with col2:
         if btn:
-            # --- HELPER FUNCTION ---
-            def get_col(name):
-                return df[name] if name in df.columns else 0
+            # --- SMART COLUMN FINDER ---
+            def get_val(row, target_name):
+                # List of possible column names in your CSV
+                possible_names = [
+                    target_name, 
+                    target_name.lower(), 
+                    target_name.replace(" ", "_").lower(), # e.g. "food_quality"
+                    target_name.replace(" ", "_")          # e.g. "Food_Quality"
+                ]
+                # Return the first one found
+                for name in possible_names:
+                    if name in row:
+                        return row[name]
+                return 0.0 # Return 0 if not found
 
             # 1. CALCULATE SCORE
-            score = (
-                (get_col('Food Quality') * w_food) +
-                (get_col('Value for Money') * w_value) +
-                (get_col('Staff Friendliness') * w_staff) +
-                (get_col('Service Speed') * w_speed) +
-                (get_col('Dining Experience') * w_exp)
-            )
-            
-            # Save the score
-            df['final_score'] = score
+            def calculate_score(row):
+                s = 0.0
+                s += get_val(row, 'Food Quality') * w_food
+                s += get_val(row, 'Value for Money') * w_value
+                s += get_val(row, 'Staff Friendliness') * w_staff
+                s += get_val(row, 'Service Speed') * w_speed
+                s += get_val(row, 'Dining Experience') * w_exp
+                return s
+
+            df['final_score'] = df.apply(calculate_score, axis=1)
             
             # 2. FILTER BY CUISINE
             filtered_df = df.copy()
             
             if cuisine_pref == "Western/Italian":
-                west_col = next((c for c in ['Western Cuisine', 'western_cuisine'] if c in df.columns), None)
+                west_col = next((c for c in ['Western Cuisine', 'western_cuisine', 'Western_Cuisine'] if c in df.columns), None)
                 if west_col:
                     filtered_df = filtered_df[filtered_df[west_col] > 3.0]
                     
             elif cuisine_pref == "Asian/Local":
-                asian_col = next((c for c in ['Asian Cuisine', 'asian_cuisine'] if c in df.columns), None)
+                asian_col = next((c for c in ['Asian Cuisine', 'asian_cuisine', 'Asian_Cuisine'] if c in df.columns), None)
                 if asian_col:
                     filtered_df = filtered_df[filtered_df[asian_col] > 3.0]
                 
@@ -240,24 +249,22 @@ elif page == "🔍 Find Your Restaurant":
                     c2.metric("Stars", f"{row['avg_rating']:.1f}")
                     
                     # Show Food Score if available
-                    food_val = f"{row['Food Quality']:.1f}" if 'Food Quality' in row else "N/A"
+                    food_val = f"{get_val(row, 'Food Quality'):.1f}"
                     c3.metric("Food Score", food_val)
                     
                     # Show Value Score if available
-                    val_val = f"{row['Value for Money']:.1f}" if 'Value for Money' in row else "N/A"
+                    val_val = f"{get_val(row, 'Value for Money'):.1f}"
                     c4.metric("Value Score", val_val)
                     
                     # Progress Bar
-                    # Calc max possible score based on how many items were selected
                     max_possible = (w_food + w_value + w_staff + w_speed + w_exp) * 5
                     if max_possible > 0:
                         norm_score = row['final_score'] / max_possible
-                        norm_score = min(1.0, max(0.0, norm_score)) # Clamp to avoid error
+                        norm_score = min(1.0, max(0.0, norm_score)) # Clamp
                         st.progress(norm_score)
                     
-                    # Review Evidence (NO EMOJIS as requested)
+                    # Review Evidence (NO EMOJIS)
                     with st.expander("See what people actually said (Evidence)"):
-                        # Only show if user cared about it (Weight > 0)
                         if w_food > 0 and 'Food Quality_text' in row:
                             st.markdown(f"**Food:** _{row['Food Quality_text']}_")
                         if w_staff > 0 and 'Staff Friendliness_text' in row:
@@ -317,7 +324,7 @@ elif page == "Methodology & Insights":
         
         with col1:
             st.subheader("1. Rating Distribution")
-            # Live Chart Generation (Fast & Interactive)
+            # Live Chart Generation
             fig_dist = px.histogram(
                 df, 
                 x='avg_rating', 
@@ -333,9 +340,36 @@ elif page == "Methodology & Insights":
             This highlights the need for **Sentiment Analysis** to distinguish "Good" from "Great".
             """)
 
+        with col2:
+            st.subheader("2. Correlation Analysis")
+            # Select numeric columns for correlation
+            corr_cols = ['avg_rating', 'food_quality', 'service', 'value', 'western_cuisine', 'asian_cuisine']
+            
+            # Check if columns exist
+            available_cols = [c for c in corr_cols if c in df.columns]
+            
+            if len(available_cols) > 1:
+                # Compute correlation matrix live
+                corr_matrix = df[available_cols].corr()
+                
+                # Heatmap
+                fig_corr = px.imshow(
+                    corr_matrix, 
+                    text_auto=".2f",
+                    aspect="auto",
+                    color_continuous_scale="RdBu_r",
+                    title="Correlation: Sentiment vs. Overall Rating"
+                )
+                st.plotly_chart(fig_corr, use_container_width=True)
+            
+            st.info("""
+            **Insight:** **Food Quality** and **Service** typically show the strongest positive correlation with the Overall Rating. 
+            Value for money often has a weaker impact on the final star rating compared to taste and service.
+            """)
+
         st.markdown("---")
 
-        # ROW 2: Wordcloud & N-Grams (Static Images)
+        # ROW 2: Wordcloud & N-Grams
         st.subheader("3. Text Analysis (Word Cloud & N-Grams)")
         st.markdown("Most frequent words and phrases used by customers.")
 
@@ -343,7 +377,6 @@ elif page == "Methodology & Insights":
         
         with c1:
             st.markdown("**Word Cloud**")
-            # Check for image, otherwise show placeholder
             import os
             if os.path.exists("wordcloud.png"):
                 st.image("wordcloud.png", caption="Most Common Words in Reviews", use_container_width=True)
