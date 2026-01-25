@@ -333,33 +333,6 @@ elif page == "Methodology & Insights":
             This highlights the need for **Sentiment Analysis** to distinguish "Good" from "Great".
             """)
 
-        with col2:
-            st.subheader("2. Correlation Analysis")
-            # Select numeric columns for correlation
-            corr_cols = ['avg_rating', 'food_quality', 'service', 'value', 'western_cuisine', 'asian_cuisine']
-            
-            # Check if columns exist before correlating
-            available_cols = [c for c in corr_cols if c in df.columns]
-            
-            if len(available_cols) > 1:
-                # Compute correlation matrix live
-                corr_matrix = df[available_cols].corr()
-                
-                # Heatmap
-                fig_corr = px.imshow(
-                    corr_matrix, 
-                    text_auto=".2f",
-                    aspect="auto",
-                    color_continuous_scale="RdBu_r",
-                    title="Correlation: Sentiment vs. Overall Rating"
-                )
-                st.plotly_chart(fig_corr, use_container_width=True)
-            
-            st.info("""
-            **Insight:** **Food Quality** and **Service** typically show the strongest positive correlation with the Overall Rating. 
-            Value for money often has a weaker impact on the final star rating compared to taste and service.
-            """)
-
         st.markdown("---")
 
         # ROW 2: Wordcloud & N-Grams (Static Images)
