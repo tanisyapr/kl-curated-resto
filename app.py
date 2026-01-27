@@ -3,7 +3,7 @@ import pandas as pd
 import plotly.express as px
 import os
 
-# =========================================
+# ==========================================
 # 1. PAGE CONFIGURATION
 # ==========================================
 st.set_page_config(
@@ -29,7 +29,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ==========================================
-# 3. ROBUST DATA LOADING (FIXES ERRORS)
+# 3. DATA LOADING & CLEANING
 # ==========================================
 @st.cache_data
 def load_data():
@@ -38,7 +38,7 @@ def load_data():
         return None
     try:
         df = pd.read_csv(filename)
-        # CRITICAL FIX: Strip whitespace from column names to prevent KeyErrors
+        # 1. Strip whitespace from column names (prevents "Topic " vs "Topic" errors)
         df.columns = df.columns.str.strip()
         return df
     except Exception as e:
@@ -51,16 +51,29 @@ if df is None:
     st.stop()
 
 # ==========================================
-# 4. SIDEBAR
+# 4. DYNAMIC TOPIC DETECTION (THE FIX)
+# ==========================================
+# We define what columns are NOT topics. Everything else is treated as a topic.
+non_topic_cols = [
+    'restaurant', 'avg_rating', 'review_count', 'review', 
+    'topic', 'topic_label', 'topic_id', 'lda_topic_id', 'final_score', 
+    'Western Cuisine', 'Asian Cuisine' # Exclude cuisine filters from the preference list
+]
+
+# Automatically find numeric columns that are likely your topics
+available_topics = [
+    col for col in df.columns 
+    if col not in non_topic_cols 
+    and pd.api.types.is_numeric_dtype(df[col])
+]
+
+# ==========================================
+# 5. SIDEBAR
 # ==========================================
 st.sidebar.title("KL Dining Assistant")
 st.sidebar.markdown("By Tanisya Pristi Azrelia")
 st.sidebar.markdown("---")
 page = st.sidebar.radio("Navigate", ["Best of The Best", "Find Your Restaurant", "Methodology & Insights"])
-
-# DEBUG TOOL (Use this if it's still broken!)
-if st.sidebar.checkbox("Show Data Columns (Debug)"):
-    st.sidebar.write(list(df.columns))
 
 # ==========================================
 # PAGE 1: HOME
@@ -70,10 +83,8 @@ if page == "Best of The Best":
     st.markdown("Welcome! Explore the top-rated establishments below.")
     st.divider()
     
-    # Safety Check: Ensure columns exist before sorting
     if 'review_count' in df.columns and 'avg_rating' in df.columns:
         top_restaurants = df[df['review_count'] > 50].sort_values('avg_rating', ascending=False).head(20)
-        
         st.dataframe(
             top_restaurants,
             column_order=["restaurant", "avg_rating", "review_count"],
@@ -81,11 +92,9 @@ if page == "Best of The Best":
             use_container_width=True,
             height=600
         )
-    else:
-        st.error("Error: Dataset is missing 'review_count' or 'avg_rating' columns.")
 
 # ==========================================
-# PAGE 2: RECOMMENDATION ENGINE (FIXED)
+# PAGE 2: RECOMMENDATION ENGINE
 # ==========================================
 elif page == "Find Your Restaurant":
     st.title("Personalized Recommendation")
@@ -95,26 +104,17 @@ elif page == "Find Your Restaurant":
     with col1:
         st.markdown("### 1. Select Preferences")
         
-        # DYNAMIC OPTION LOADING
-        # This prevents the app from crashing if a column name is slightly different.
-        # We look for columns that match your topics.
-        
-        potential_topics = [
-            "Food Quality", "Staff Friendliness", "Ambiance & Atmosphere", 
-            "Service Operations/Speed", "Management", "Value for Money", "Cleanliness"
-        ]
-        
-        # Only show options that ACTUALLY EXIST in the file
-        available_options = [t for t in potential_topics if t in df.columns]
-        
-        if not available_options:
-            st.error("No topic columns found in data! Check the Debug box in sidebar.")
+        # ERROR CHECK: If no topics found, warn the user
+        if not available_topics:
+            st.error("No topic columns found! Check your CSV file.")
+            st.write("Columns detected:", list(df.columns))
             st.stop()
-            
+
+        # DYNAMIC DROPDOWN: Only shows what exists in 'available_topics'
         priorities = st.multiselect(
             "What matters most?",
-            options=available_options,
-            default=[available_options[0]]
+            options=available_topics,
+            default=[available_topics[0]] if available_topics else None
         )
         
         st.markdown("### 2. Cuisine Filter")
@@ -127,31 +127,24 @@ elif page == "Find Your Restaurant":
         if btn:
             # 1. SCORING
             if priorities:
-                # Calculate mean of selected columns
                 df['final_score'] = df[priorities].mean(axis=1)
             else:
-                # Fallback to stars if nothing selected
-                if 'avg_rating' in df.columns:
-                    df['final_score'] = df['avg_rating']
-                else:
-                    df['final_score'] = 0
+                df['final_score'] = df.get('avg_rating', 0)
             
             # 2. FILTERING
             filtered_df = df.copy()
             
-            # Robust Column Checking for Cuisines
-            # We use .str.contains to find columns even if named differently (e.g. "Western Cuisine" vs "Western")
+            # Robust Cuisine Filtering
             if cuisine_pref == "Western":
-                # Find any column containing "Western"
-                west_cols = [c for c in df.columns if "Western" in c]
-                if west_cols:
-                    filtered_df = filtered_df[filtered_df[west_cols[0]] > 3.0]
+                # Check if specific column exists, otherwise skip filter
+                west_col = next((c for c in df.columns if "Western" in c), None)
+                if west_col:
+                    filtered_df = filtered_df[filtered_df[west_col] > 3.0]
                     
             elif cuisine_pref == "Asian":
-                # Find any column containing "Asian"
-                asian_cols = [c for c in df.columns if "Asian" in c]
-                if asian_cols:
-                    filtered_df = filtered_df[filtered_df[asian_cols[0]] > 3.0]
+                asian_col = next((c for c in df.columns if "Asian" in c), None)
+                if asian_col:
+                    filtered_df = filtered_df[filtered_df[asian_col] > 3.0]
 
             # 3. DISPLAY
             results = filtered_df.sort_values('final_score', ascending=False).head(5)
@@ -162,7 +155,7 @@ elif page == "Find Your Restaurant":
                 st.subheader("Top Recommendations")
 
             if len(results) == 0:
-                st.warning("No matches found. Try relaxing your filters.")
+                st.warning("No matches found.")
                 
             for i, (index, row) in enumerate(results.iterrows()):
                 with st.container():
@@ -177,7 +170,6 @@ elif page == "Find Your Restaurant":
                     if 'review_count' in row:
                         c3.metric("Reviews", f"{int(row['review_count'])}")
                         
-                    # Show the score of the first selected priority
                     if priorities:
                         first_p = priorities[0]
                         c4.metric(first_p, f"{row[first_p]:.1f}")
@@ -194,12 +186,10 @@ elif page == "Methodology & Insights":
     tab1, tab2, tab3 = st.tabs(["LDA Model", "RoBERTa Model", "EDA"])
     
     with tab1:
-        st.write("LDA was selected over BERTopic for 100% data coverage.")
+        st.write("LDA selected for 100% data coverage.")
     with tab2:
-        st.write("RoBERTa achieved 86% Accuracy in sentiment classification.")
+        st.write("RoBERTa accuracy: 86.31%.")
     with tab3:
-        st.write("Visualizations (EDA) would appear here.")
-        # Basic Histogram
         if 'avg_rating' in df.columns:
             fig = px.histogram(df, x='avg_rating', title="Rating Distribution", color_discrete_sequence=['#355C7D'])
             st.plotly_chart(fig, use_container_width=True)
