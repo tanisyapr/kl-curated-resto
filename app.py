@@ -39,21 +39,13 @@ st.markdown("""
         color: #FFFFFF !important;
     }
 
-    /* 4. INFO/SUCCESS BOXES */
-    .stAlert {
-        background-color: rgba(255, 255, 255, 0.95);
-        color: #355C7D;
-        border-radius: 10px;
-        border: 2px solid #F8B195;
-    }
-
-    /* 5. SIDEBAR */
+    /* 4. SIDEBAR */
     section[data-testid="stSidebar"] {
         background-color: #2A3E50;
         color: #FFFFFF;
     }
     
-    /* 6. BUTTONS */
+    /* 5. BUTTONS */
     div.stButton > button {
         background-color: #F8B195;
         color: #355C7D;
@@ -67,19 +59,9 @@ st.markdown("""
         color: white;
     }
 
-    /* 7. WIDGETS */
-    div.stSlider > div[data-baseweb="slider"] > div > div > div[role="slider"]{
-        background-color: #F8B195;
-    }
-    span[data-baseweb="tag"] {
-        background-color: #F8B195 !important;
-        color: #355C7D !important;
-    }
-    
-    /* 8. TABS */
+    /* 6. TABS */
     .stTabs [data-baseweb="tab-list"] { gap: 8px; }
     .stTabs [data-baseweb="tab"] {
-        height: 50px;
         background-color: rgba(0,0,0,0.3);
         color: #FFFFFF;
         border-radius: 5px 5px 0px 0px;
@@ -97,20 +79,19 @@ st.markdown("""
 # ==========================================
 @st.cache_data
 def load_data():
-    filename = 'streamlitdata_with_text.csv'
+    filename = 'streamlitdata.csv'
     if not os.path.exists(filename):
-        filename = 'streamlitdata.csv'
-        
+        return None
     try:
         df = pd.read_csv(filename)
         return df
-    except FileNotFoundError:
+    except Exception as e:
         return None
 
 df = load_data()
 
 if df is None:
-    st.error("Data file not found! Please upload 'streamlitdata_with_text.csv' to your repository.")
+    st.error("Error: 'streamlitdata.csv' not found. Please ensure the data file is in the same directory.")
     st.stop()
 
 # ==========================================
@@ -128,13 +109,13 @@ page = st.sidebar.radio("Navigate", ["Best of The Best", "Find Your Restaurant",
 if page == "Best of The Best":
     st.title("KL Restaurant Recommendation System")
     st.markdown("""
-    **Welcome!** This platform uses advanced machine learning (LDA & RoBERTa) to analyze thousands of reviews.
-    Your dining experience should be personal, so get your recommendation here by choosing your preferences.
+    **Welcome.** This platform leverages LDA Topic Modeling and RoBERTa Sentiment Analysis to provide data-driven dining recommendations in Kuala Lumpur.
+    Explore the top-rated establishments below or navigate to the recommendation engine to find your perfect match.
     """)
     
     st.divider()
     st.subheader("The Hall of Fame (Top 20)")
-    st.info("These restaurants have Ratings > 4.0 and High Reliability (>50 reviews).")
+    st.info("Criteria: Average Rating > 4.0 and High Reliability (>50 verified reviews).")
 
     # Filter & Sort
     top_restaurants = df[df['review_count'] > 50].sort_values('avg_rating', ascending=False).head(20)
@@ -160,75 +141,55 @@ if page == "Best of The Best":
 # PAGE 2: RECOMMENDATION ENGINE
 # ==========================================
 elif page == "Find Your Restaurant":
-    st.title("Where should you eat today in Kuala Lumpur?")
-    st.markdown("Choose your dining priorities below")
+    st.title("Personalized Dining Recommendation")
+    st.markdown("Adjust the weights below to prioritize what matters most to your dining experience.")
 
     col1, col2 = st.columns([1, 2])
     
     with col1:
-        st.markdown("### 1. Select Your Priorities")
+        st.markdown("### 1. Set Preferences")
         
-        # MULTI-SELECT
-        priorities = st.multiselect(
-            "What matters most to you?",
-            ["Food Quality", "Value for Money", "Staff Friendliness", "Service Speed", "Dining Experience"],
-            default=["Food Quality"]
-        )
+        # 7 Quality Sliders (Matched to your NEW Topic List)
+        w_food = st.slider("Food Quality", 0.0, 1.0, 0.8)
+        w_staff = st.slider("Staff Friendliness", 0.0, 1.0, 0.5)
+        w_ambiance = st.slider("Ambiance & Atmosphere", 0.0, 1.0, 0.5)
+        w_mgmt = st.slider("Management", 0.0, 1.0, 0.5)
+        w_speed = st.slider("Service Speed", 0.0, 1.0, 0.5)
         
-        # Convert selection to weights
-        w_food = 1.0 if "Food Quality" in priorities else 0.0
-        w_value = 1.0 if "Value for Money" in priorities else 0.0
-        w_staff = 1.0 if "Staff Friendliness" in priorities else 0.0
-        w_speed = 1.0 if "Service Speed" in priorities else 0.0
-        w_exp = 1.0 if "Dining Experience" in priorities else 0.0
-        
-        st.markdown("### 2. Cuisine Filter")
-        cuisine_pref = st.radio("Select Type:", ["All Cuisines", "Western/Italian", "Asian/Local"])
+        st.markdown("### 2. Select Cuisine")
+        cuisine_pref = st.radio("Filter by Category:", ["All Cuisines", "Western Cuisine", "Asian Cuisine"])
         
         st.markdown("---")
         btn = st.button("Find My Match", type="primary")
 
     with col2:
         if btn:
-            # --- SMART COLUMN FINDER ---
-            def get_val(row, target_name):
-                # List of possible column names in your CSV
-                possible_names = [
-                    target_name, 
-                    target_name.lower(), 
-                    target_name.replace(" ", "_").lower(), # e.g. "food_quality"
-                    target_name.replace(" ", "_")          # e.g. "Food_Quality"
-                ]
-                # Return the first one found
-                for name in possible_names:
-                    if name in row:
-                        return row[name]
-                return 0.0 # Return 0 if not found
+            # --- HELPER FUNCTION ---
+            def get_col(name):
+                return df[name] if name in df.columns else 0
 
             # 1. CALCULATE SCORE
-            def calculate_score(row):
-                s = 0.0
-                s += get_val(row, 'Food Quality') * w_food
-                s += get_val(row, 'Value for Money') * w_value
-                s += get_val(row, 'Staff Friendliness') * w_staff
-                s += get_val(row, 'Service Speed') * w_speed
-                s += get_val(row, 'Dining Experience') * w_exp
-                return s
-
-            df['final_score'] = df.apply(calculate_score, axis=1)
+            # Weighted sum based on user sliders
+            score = (
+                (get_col('Food Quality') * w_food) +
+                (get_col('Staff Friendliness') * w_staff) +
+                (get_col('Ambiance & Atmosphere') * w_ambiance) +
+                (get_col('Management') * w_mgmt) +
+                (get_col('Service Operations/Speed') * w_speed)
+            )
+            
+            df['final_score'] = score
             
             # 2. FILTER BY CUISINE
             filtered_df = df.copy()
             
-            if cuisine_pref == "Western/Italian":
-                west_col = next((c for c in ['Western Cuisine', 'western_cuisine', 'Western_Cuisine'] if c in df.columns), None)
-                if west_col:
-                    filtered_df = filtered_df[filtered_df[west_col] > 3.0]
+            if cuisine_pref == "Western Cuisine":
+                if 'Western Cuisine' in df.columns:
+                    filtered_df = filtered_df[filtered_df['Western Cuisine'] > 3.0]
                     
-            elif cuisine_pref == "Asian/Local":
-                asian_col = next((c for c in ['Asian Cuisine', 'asian_cuisine', 'Asian_Cuisine'] if c in df.columns), None)
-                if asian_col:
-                    filtered_df = filtered_df[filtered_df[asian_col] > 3.0]
+            elif cuisine_pref == "Asian Cuisine":
+                if 'Asian Cuisine' in df.columns:
+                    filtered_df = filtered_df[filtered_df['Asian Cuisine'] > 3.0]
                 
             # 3. SORT & DISPLAY TOP 5
             results = filtered_df.sort_values('final_score', ascending=False).head(5)
@@ -236,46 +197,28 @@ elif page == "Find Your Restaurant":
             st.subheader("Top 5 Recommendations")
             
             if len(results) == 0:
-                st.warning("No matches found. Try selecting 'All Cuisines' or adding priorities!")
+                st.warning("No matches found. Try adjusting your filters.")
                 
             for i, (index, row) in enumerate(results.iterrows()):
-                # Create a card-like container
                 with st.container():
                     st.markdown(f"### #{i+1} {row['restaurant']}")
                     
                     # Metrics Row
                     c1, c2, c3, c4 = st.columns(4)
                     c1.metric("Match Score", f"{row['final_score']:.2f}")
-                    c2.metric("Stars", f"{row['avg_rating']:.1f}")
+                    c2.metric("Overall Rating", f"{row['avg_rating']:.1f}")
                     
-                    # Show Food Score if available
-                    food_val = f"{get_val(row, 'Food Quality'):.1f}"
-                    c3.metric("Food Score", food_val)
+                    # Dynamic Metrics based on top user priorities
+                    if w_food > 0.5 and 'Food Quality' in row:
+                        c3.metric("Food Score", f"{row['Food Quality']:.1f}")
+                    elif 'Ambiance & Atmosphere' in row:
+                        c3.metric("Ambiance", f"{row['Ambiance & Atmosphere']:.1f}")
+                        
+                    if w_staff > 0.5 and 'Staff Friendliness' in row:
+                        c4.metric("Staff Score", f"{row['Staff Friendliness']:.1f}")
+                    else:
+                        c4.metric("Reviews", f"{int(row['review_count'])}")
                     
-                    # Show Value Score if available
-                    val_val = f"{get_val(row, 'Value for Money'):.1f}"
-                    c4.metric("Value Score", val_val)
-                    
-                    # Progress Bar
-                    max_possible = (w_food + w_value + w_staff + w_speed + w_exp) * 5
-                    if max_possible > 0:
-                        norm_score = row['final_score'] / max_possible
-                        norm_score = min(1.0, max(0.0, norm_score)) # Clamp
-                        st.progress(norm_score)
-                    
-                    # Review Evidence (NO EMOJIS)
-                    with st.expander("See what people actually said (Evidence)"):
-                        if w_food > 0 and 'Food Quality_text' in row:
-                            st.markdown(f"**Food:** _{row['Food Quality_text']}_")
-                        if w_staff > 0 and 'Staff Friendliness_text' in row:
-                            st.markdown(f"**Staff:** _{row['Staff Friendliness_text']}_")
-                        if w_value > 0 and 'Value for Money_text' in row:
-                            st.markdown(f"**Value:** _{row['Value for Money_text']}_")
-                        if w_speed > 0 and 'Service Speed_text' in row:
-                            st.markdown(f"**Speed:** _{row['Service Speed_text']}_")
-                        if w_exp > 0 and 'Dining Experience_text' in row:
-                            st.markdown(f"**Vibe:** _{row['Dining Experience_text']}_")
-
                     st.markdown("---")
 
 # ==========================================
@@ -283,115 +226,87 @@ elif page == "Find Your Restaurant":
 # ==========================================
 elif page == "Methodology & Insights":
     st.title("Methodology & Analysis")
-    st.markdown("This is the methodology used for this analysis.")
+    st.markdown("Overview of the technical framework used to build this system.")
     
     tab1, tab2, tab3 = st.tabs(["Topic Modeling (LDA)", "Sentiment (RoBERTa)", "Exploratory Analysis (EDA)"])
     
     # --- TAB 1: LDA vs BERTopic ---
     with tab1:
-        st.header("Why LDA?")
-        st.markdown("We compared LDA vs BERTopic. **LDA was chosen** for its ability to generalize better for broad categories like 'Service' and 'Value'.")
+        st.header("Topic Modeling: LDA vs. BERTopic")
+        st.markdown("We compared Latent Dirichlet Allocation (LDA) against BERTopic. **LDA was selected** as the final model due to its superior generalization capabilities on this specific dataset.")
         
         c1, c2 = st.columns(2)
         with c1:
-            st.success("LDA (Selected)")
-            st.markdown("- 100% Coverage\n- Stable Topics\n- Better Interpretability")
+            st.success("LDA (Selected Model)")
+            st.markdown("""
+            - **100% Data Coverage:** No data loss.
+            - **Interpretability:** Produces clear, broad categories (e.g., 'Service', 'Value').
+            - **Stability:** Consistent results suitable for deployment.
+            """)
         with c2:
             st.error("BERTopic (Discarded)")
-            st.markdown("- 45% Data Loss (Outliers)\n- Generate 100+ topics\n- LDA will be harder to deploy and confusing to the users to choose that many topics")
+            st.markdown("""
+            - **High Data Loss:** Classified ~45% of reviews as outliers (-1).
+            - **Fragmentation:** Generated 100+ micro-topics, making it difficult for users to filter effectively.
+            """)
 
     # --- TAB 2: RoBERTa ---
     with tab2:
-        st.header("RoBERTa Sentiment Analysis")
-        st.markdown("We fine-tuned `twitter-roberta-base-sentiment` to score reviews on a 1-5 scale.")
+        st.header("Sentiment Analysis: RoBERTa")
+        st.markdown("We utilized a pre-trained `twitter-roberta-base-sentiment` model, fine-tuned to score reviews on a normalized 1-5 scale.")
+        
         col1, col2, col3 = st.columns(3)
-        col1.metric("Overall Accuracy", "86.31%")
+        col1.metric("Model Accuracy", "86.31%")
         col2.metric("Precision (Positive)", "93%")
         col3.metric("Recall (Positive)", "96%")
         
+        st.markdown("### Performance Visualization")
         if os.path.exists("confusion_matrix.png"):
-            st.image("confusion_matrix.png", caption="Confusion Matrix", width=500)
+            st.image("confusion_matrix.png", caption="Confusion Matrix: Predicted vs. Actual Sentiment", width=600)
         else:
-            st.info("Confusion Matrix image not uploaded.")
+            st.info("Confusion Matrix image not found.")
 
     # --- TAB 3: EDA ---
     with tab3:
         st.header("Exploratory Data Analysis")
-        st.markdown("Visualizing the dataset to understand underlying patterns in customer feedback.")
+        st.markdown("Key insights derived from the dataset visualization.")
         
-        # ROW 1: Rating Distribution & Correlation
-        col1, col2 = st.columns(2)
+        # 1. Rating Distribution
+        st.subheader("1. Rating Distribution")
+        fig_dist = px.histogram(
+            df, 
+            x='avg_rating', 
+            nbins=10, 
+            title="Distribution of Star Ratings",
+            color_discrete_sequence=['#355C7D']
+        )
+        fig_dist.update_layout(bargap=0.1)
+        st.plotly_chart(fig_dist, use_container_width=True)
         
-        with col1:
-            st.subheader("1. Rating Distribution")
-            # Live Chart Generation
-            fig_dist = px.histogram(
-                df, 
-                x='avg_rating', 
-                nbins=10, 
-                title="Distribution of Star Ratings",
-                color_discrete_sequence=['#355C7D']
-            )
-            fig_dist.update_layout(bargap=0.1)
-            st.plotly_chart(fig_dist, use_container_width=True)
-            
-            st.info("""
-            **Insight:** The dataset is left-skewed, meaning most restaurants in KL have positive ratings (> 4.0). 
-            This highlights the need for **Sentiment Analysis** to distinguish "Good" from "Great".
-            """)
-
-        with col2:
-            st.subheader("2. Correlation Analysis")
-            # Select numeric columns for correlation
-            corr_cols = ['avg_rating', 'food_quality', 'service', 'value', 'western_cuisine', 'asian_cuisine']
-            
-            # Check if columns exist
-            available_cols = [c for c in corr_cols if c in df.columns]
-            
-            if len(available_cols) > 1:
-                # Compute correlation matrix live
-                corr_matrix = df[available_cols].corr()
-                
-                # Heatmap
-                fig_corr = px.imshow(
-                    corr_matrix, 
-                    text_auto=".2f",
-                    aspect="auto",
-                    color_continuous_scale="RdBu_r",
-                    title="Correlation: Sentiment vs. Overall Rating"
-                )
-                st.plotly_chart(fig_corr, use_container_width=True)
-            
-            st.info("""
-            **Insight:** **Food Quality** and **Service** typically show the strongest positive correlation with the Overall Rating. 
-            Value for money often has a weaker impact on the final star rating compared to taste and service.
-            """)
-
+        st.info("""
+        **Insight:** The dataset exhibits a left-skewed distribution, indicating that the majority of restaurants in KL maintain positive ratings (> 4.0). 
+        This necessitates the use of granular sentiment analysis to distinguish 'Good' from 'Exceptional'.
+        """)
+        
         st.markdown("---")
 
-        # ROW 2: Wordcloud & N-Grams
-        st.subheader("3. Text Analysis (Word Cloud & N-Grams)")
-        st.markdown("Most frequent words and phrases used by customers.")
-
+        # 2. Text Analysis
+        st.subheader("2. Text Analysis (Lexical Patterns)")
+        
         c1, c2 = st.columns(2)
         
         with c1:
             st.markdown("**Word Cloud**")
-            import os
             if os.path.exists("wordcloud.png"):
-                st.image("wordcloud.png", caption="Most Common Words in Reviews", use_container_width=True)
-                st.markdown("""
-                **Interpretation:** Dominant terms like *"Delicious", "Service",* and *"Friendly"* confirm that the dataset is heavily focused on dining experiences rather than logistics.
-                """)
+                st.image("wordcloud.png", caption="Most Frequent Terms", use_container_width=True)
+                st.markdown("**Observation:** Dominant terms such as 'Delicious', 'Service', and 'Friendly' confirm that the dataset is heavily centered on the dining experience.")
             else:
-                st.warning("⚠️ 'wordcloud.png' not found. Please upload the image from your EDA Analysis.")
+                st.warning("Image 'wordcloud.png' not found.")
 
         with c2:
-            st.markdown("**Top Bigrams (2-Words Phrases) and Trigrams (3-Words Phrases)**")
+            st.markdown("**N-Grams (Common Phrases)**")
             if os.path.exists("ngram.png"):
-                st.image("ngram.png", caption="Top Bigrams (2-Words Phrases) and Trigrams (3-Words Phrases)", use_container_width=True)
-                st.markdown("""
-                **Interpretation:** Phrases like *"Nasi Lemak"* and *"Soft Shell Crab"* identify popular local dishes, while *"Friendly Staff"* and *"Staff Friendly Helpful" appears frequently, validating the LDA topic modeling results.
-                """)
+                st.image("ngram.png", caption="Top Bigrams & Trigrams", use_container_width=True)
+                st.markdown("**Observation:** Specific dishes like 'Nasi Lemak' and service indicators like 'Friendly Staff' appear frequently, validating the topics discovered by the LDA model.")
             else:
-                st.warning("⚠️ 'ngram.png' not found. Please upload the image from your EDA Analysis.")
+                st.warning("Image 'ngram.png' not found.")
