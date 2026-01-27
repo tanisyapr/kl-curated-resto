@@ -1,3 +1,4 @@
+%%writefile app.py
 import streamlit as st
 import pandas as pd
 import plotly.express as px
@@ -142,19 +143,43 @@ if page == "Best of The Best":
 # ==========================================
 elif page == "Find Your Restaurant":
     st.title("Personalized Dining Recommendation")
-    st.markdown("Adjust the weights below to prioritize what matters most to your dining experience.")
+    st.markdown("Select your priorities below using the dropdown menus.")
 
     col1, col2 = st.columns([1, 2])
     
     with col1:
         st.markdown("### 1. Set Preferences")
         
-        # 7 Quality Sliders (Matched to your NEW Topic List)
-        w_food = st.slider("Food Quality", 0.0, 1.0, 0.8)
-        w_staff = st.slider("Staff Friendliness", 0.0, 1.0, 0.5)
-        w_ambiance = st.slider("Ambiance & Atmosphere", 0.0, 1.0, 0.5)
-        w_mgmt = st.slider("Management", 0.0, 1.0, 0.5)
-        w_speed = st.slider("Service Speed", 0.0, 1.0, 0.5)
+        # Define weights mapping
+        priority_map = {
+            "Not Relevant": 0.0,
+            "Low Priority": 0.3,
+            "Medium Priority": 0.6,
+            "High Priority": 1.0
+        }
+        
+        # Create Dropdowns (Selectboxes)
+        # We define the keys (Text) and map them to values (Numbers)
+        
+        # Food Quality (Default: High)
+        p_food = st.selectbox("Food Quality", options=list(priority_map.keys()), index=3)
+        w_food = priority_map[p_food]
+        
+        # Staff (Default: Medium)
+        p_staff = st.selectbox("Staff Friendliness", options=list(priority_map.keys()), index=2)
+        w_staff = priority_map[p_staff]
+
+        # Ambiance (Default: Medium)
+        p_ambiance = st.selectbox("Ambiance & Atmosphere", options=list(priority_map.keys()), index=2)
+        w_ambiance = priority_map[p_ambiance]
+
+        # Management (Default: Low)
+        p_mgmt = st.selectbox("Management", options=list(priority_map.keys()), index=1)
+        w_mgmt = priority_map[p_mgmt]
+
+        # Speed (Default: Low)
+        p_speed = st.selectbox("Service Speed", options=list(priority_map.keys()), index=1)
+        w_speed = priority_map[p_speed]
         
         st.markdown("### 2. Select Cuisine")
         cuisine_pref = st.radio("Filter by Category:", ["All Cuisines", "Western Cuisine", "Asian Cuisine"])
@@ -169,7 +194,7 @@ elif page == "Find Your Restaurant":
                 return df[name] if name in df.columns else 0
 
             # 1. CALCULATE SCORE
-            # Weighted sum based on user sliders
+            # Weighted sum based on user dropdown selections
             score = (
                 (get_col('Food Quality') * w_food) +
                 (get_col('Staff Friendliness') * w_staff) +
@@ -256,9 +281,9 @@ elif page == "Methodology & Insights":
         st.markdown("We utilized a pre-trained `twitter-roberta-base-sentiment` model, fine-tuned to score reviews on a normalized 1-5 scale.")
         
         col1, col2, col3 = st.columns(3)
-        col1.metric("Model Accuracy", "87%")
+        col1.metric("Model Accuracy", "86.31%")
         col2.metric("Precision (Positive)", "93%")
-        col3.metric("Recall (Positive)", "97%")
+        col3.metric("Recall (Positive)", "96%")
         
         st.markdown("### Performance Visualization")
         if os.path.exists("confusion_matrix.png"):
