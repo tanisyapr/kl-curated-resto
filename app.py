@@ -256,9 +256,9 @@ elif page == "Methodology & Insights":
         st.markdown("We utilized a pre-trained `twitter-roberta-base-sentiment` model, fine-tuned to score reviews on a normalized 1-5 scale.")
         
         col1, col2, col3 = st.columns(3)
-        col1.metric("Model Accuracy", "86.31%")
+        col1.metric("Model Accuracy", "87%")
         col2.metric("Precision (Positive)", "93%")
-        col3.metric("Recall (Positive)", "96%")
+        col3.metric("Recall (Positive)", "97%")
         
         st.markdown("### Performance Visualization")
         if os.path.exists("confusion_matrix.png"):
