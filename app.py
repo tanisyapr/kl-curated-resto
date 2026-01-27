@@ -3,7 +3,7 @@ import pandas as pd
 import plotly.express as px
 import os
 
-# ==========================================
+# =========================================
 # 1. PAGE CONFIGURATION
 # ==========================================
 st.set_page_config(
