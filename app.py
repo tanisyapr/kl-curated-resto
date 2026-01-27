@@ -1,3 +1,4 @@
+%%writefile app.py
 import streamlit as st
 import pandas as pd
 import plotly.express as px
@@ -142,67 +143,40 @@ if page == "Best of The Best":
 # ==========================================
 elif page == "Find Your Restaurant":
     st.title("Personalized Dining Recommendation")
-    st.markdown("Select your priorities below using the dropdown menus.")
+    st.markdown("Simply tell us what is most important to you.")
 
     col1, col2 = st.columns([1, 2])
     
     with col1:
-        st.markdown("### 1. Set Preferences")
+        st.markdown("### 1. Select Preference")
         
-        # Define weights mapping
-        priority_map = {
-            "Not Relevant": 0.0,
-            "Low Priority": 0.3,
-            "Medium Priority": 0.6,
-            "High Priority": 1.0
-        }
-        
-        # Create Dropdowns (Selectboxes)
-        # We define the keys (Text) and map them to values (Numbers)
-        
-        # Food Quality (Default: High)
-        p_food = st.selectbox("Food Quality", options=list(priority_map.keys()), index=3)
-        w_food = priority_map[p_food]
-        
-        # Staff (Default: Medium)
-        p_staff = st.selectbox("Staff Friendliness", options=list(priority_map.keys()), index=2)
-        w_staff = priority_map[p_staff]
-
-        # Ambiance (Default: Medium)
-        p_ambiance = st.selectbox("Ambiance & Atmosphere", options=list(priority_map.keys()), index=2)
-        w_ambiance = priority_map[p_ambiance]
-
-        # Management (Default: Low)
-        p_mgmt = st.selectbox("Management", options=list(priority_map.keys()), index=1)
-        w_mgmt = priority_map[p_mgmt]
-
-        # Speed (Default: Low)
-        p_speed = st.selectbox("Service Speed", options=list(priority_map.keys()), index=1)
-        w_speed = priority_map[p_speed]
+        # SINGLE SIMPLE DROPDOWN
+        priority = st.selectbox(
+            "What matters most?",
+            [
+                "Food Quality", 
+                "Staff Friendliness", 
+                "Ambiance & Atmosphere", 
+                "Service Operations/Speed",
+                "Management"
+            ]
+        )
         
         st.markdown("### 2. Select Cuisine")
         cuisine_pref = st.radio("Filter by Category:", ["All Cuisines", "Western Cuisine", "Asian Cuisine"])
         
         st.markdown("---")
-        btn = st.button("Find My Match", type="primary")
+        btn = st.button("Find Best Place", type="primary")
 
     with col2:
         if btn:
-            # --- HELPER FUNCTION ---
-            def get_col(name):
-                return df[name] if name in df.columns else 0
-
             # 1. CALCULATE SCORE
-            # Weighted sum based on user dropdown selections
-            score = (
-                (get_col('Food Quality') * w_food) +
-                (get_col('Staff Friendliness') * w_staff) +
-                (get_col('Ambiance & Atmosphere') * w_ambiance) +
-                (get_col('Management') * w_mgmt) +
-                (get_col('Service Operations/Speed') * w_speed)
-            )
-            
-            df['final_score'] = score
+            # The score is simply the value of the column selected
+            if priority in df.columns:
+                df['final_score'] = df[priority]
+            else:
+                st.error(f"Error: Data for '{priority}' not found.")
+                st.stop()
             
             # 2. FILTER BY CUISINE
             filtered_df = df.copy()
@@ -218,10 +192,10 @@ elif page == "Find Your Restaurant":
             # 3. SORT & DISPLAY TOP 5
             results = filtered_df.sort_values('final_score', ascending=False).head(5)
             
-            st.subheader("Top 5 Recommendations")
+            st.subheader(f"Top 5 Recommendations for '{priority}'")
             
             if len(results) == 0:
-                st.warning("No matches found. Try adjusting your filters.")
+                st.warning("No matches found. Try changing filters.")
                 
             for i, (index, row) in enumerate(results.iterrows()):
                 with st.container():
@@ -229,19 +203,17 @@ elif page == "Find Your Restaurant":
                     
                     # Metrics Row
                     c1, c2, c3, c4 = st.columns(4)
-                    c1.metric("Match Score", f"{row['final_score']:.2f}")
-                    c2.metric("Overall Rating", f"{row['avg_rating']:.1f}")
                     
-                    # Dynamic Metrics based on top user priorities
-                    if w_food > 0.5 and 'Food Quality' in row:
-                        c3.metric("Food Score", f"{row['Food Quality']:.1f}")
-                    elif 'Ambiance & Atmosphere' in row:
-                        c3.metric("Ambiance", f"{row['Ambiance & Atmosphere']:.1f}")
-                        
-                    if w_staff > 0.5 and 'Staff Friendliness' in row:
-                        c4.metric("Staff Score", f"{row['Staff Friendliness']:.1f}")
-                    else:
-                        c4.metric("Reviews", f"{int(row['review_count'])}")
+                    # Score for the specific priority chosen
+                    score_val = row[priority]
+                    c1.metric(f"{priority} Score", f"{score_val:.2f}")
+                    
+                    c2.metric("Overall Rating", f"{row['avg_rating']:.1f}")
+                    c3.metric("Reviews", f"{int(row['review_count'])}")
+                    
+                    # Optional: Show Ambiance if that wasn't the main choice
+                    if priority != "Ambiance & Atmosphere" and 'Ambiance & Atmosphere' in row:
+                         c4.metric("Ambiance", f"{row['Ambiance & Atmosphere']:.1f}")
                     
                     st.markdown("---")
 
