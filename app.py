@@ -14,7 +14,7 @@ st.set_page_config(
 )
 
 # ==========================================
-# 2. CUSTOM CSS - HIGH CONTRAST DROPDOWNS & PASTEL THEME
+# 2. CUSTOM CSS - HIGH CONTRAST & VISIBILITY
 # ==========================================
 st.markdown("""
 <style>
@@ -39,41 +39,51 @@ st.markdown("""
        CRITICAL DROPDOWN VISIBILITY FIX 
        -------------------------------------- */
     
-    /* The Clickable Input Box */
-    .stSelectbox > div > div, .stMultiSelect > div > div {
+    /* 1. The Main Input Box (Unselected & Selected state) */
+    div[data-baseweb="select"] > div {
         background-color: #2C3E50 !important;
         color: white !important;
-        border: 1px solid #5B7C99;
+        border-color: #5B7C99 !important;
     }
     
-    /* Text inside the Input Box */
-    .stSelectbox div[data-testid="stMarkdownContainer"] p, 
-    .stMultiSelect div[data-testid="stMarkdownContainer"] p {
+    /* 2. Text Inside the Input Box */
+    div[data-baseweb="select"] span {
         color: white !important;
-        font-weight: bold !important;
     }
     
-    /* The Dropdown Pop-up Menu */
+    /* 3. The Dropdown Menu Container (The Pop-up) */
     ul[data-baseweb="menu"] {
         background-color: #2C3E50 !important;
     }
     
-    /* List Items in the Menu */
+    /* 4. The Options Inside the Menu */
     li[data-baseweb="option"] {
+        color: white !important;
+        background-color: #2C3E50 !important;
+    }
+    
+    /* 5. Text Inside the Options */
+    li[data-baseweb="option"] div {
         color: white !important;
     }
     
-    /* Hover Effect on List Items */
+    /* 6. Hover State for Options */
     li[data-baseweb="option"]:hover, li[aria-selected="true"] {
         background-color: #D4788C !important;
         color: white !important;
     }
     
-    /* Selected Tags (Chips) in MultiSelect */
-    .stMultiSelect span[data-baseweb="tag"] {
+    /* 7. Selected Tags (Chips) in MultiSelect */
+    div[data-baseweb="tag"] {
         background-color: #D4788C !important;
     }
-    .stMultiSelect span[data-baseweb="tag"] span {
+    div[data-baseweb="tag"] span {
+        color: white !important;
+    }
+    
+    /* 8. The Close 'X' icon in tags */
+    div[data-baseweb="tag"] svg {
+        fill: white !important;
         color: white !important;
     }
 
@@ -150,13 +160,23 @@ st.markdown("""
 # ==========================================
 # 3. DATA LOADING & CLEANING
 # ==========================================
-TOPIC_COLS = [
+# ALL topics (for internal calculation)
+ALL_TOPICS = [
     'Ambiance & Atmosphere',
     'Staff Friendliness',
     'Asian Cuisine',
     'Management',
     'Service Operations/Speed',
     'Western Cuisine',
+    'Food Quality'
+]
+
+# DISPLAY topics (Excluding Cuisines for the Multiselect)
+PRIORITY_OPTIONS = [
+    'Ambiance & Atmosphere',
+    'Staff Friendliness',
+    'Management',
+    'Service Operations/Speed',
     'Food Quality'
 ]
 
@@ -175,12 +195,12 @@ def load_and_clean_data():
         df['review_count'] = pd.to_numeric(df['review_count'], errors='coerce').fillna(0).astype(int)
         
         # Topic Scores Fix
-        for col in TOPIC_COLS:
+        for col in ALL_TOPICS:
             if col in df.columns:
                 df[col] = pd.to_numeric(df[col], errors='coerce').fillna(3.0).clip(1.0, 5.0)
         
         # Text Columns Fix
-        for col in TOPIC_COLS:
+        for col in ALL_TOPICS:
             text_col = f"{col}_text"
             if text_col not in df.columns:
                 df[text_col] = "No specific mentions."
@@ -220,7 +240,7 @@ def calculate_wlc_score(row, selected_topics):
 def get_short_reviews(row, limit=3):
     """Aggregates, deduplicates, and truncates reviews"""
     all_reviews = []
-    for topic in TOPIC_COLS:
+    for topic in ALL_TOPICS:
         text_col = f"{topic}_text"
         if text_col in row:
             text = str(row[text_col])
@@ -305,8 +325,8 @@ if page == "🏆 Best of The Best":
             # 2. RoBERTa Topic Breakdown
             st.markdown("**RoBERTa Aspect Ratings:**")
             topic_html = ""
-            # Show top 4 strongest aspects
-            sorted_topics = sorted([(t, row[t]) for t in TOPIC_COLS], key=lambda x: x[1], reverse=True)[:4]
+            # Show top 4 strongest aspects (using ALL_TOPICS to include cuisines if relevant)
+            sorted_topics = sorted([(t, row[t]) for t in ALL_TOPICS], key=lambda x: x[1], reverse=True)[:4]
             
             for topic, score in sorted_topics:
                 topic_html += f'<span class="topic-score-badge"><b>{topic}:</b> {score:.1f}/5</span>'
@@ -341,10 +361,10 @@ elif page == "🔍 Find Your Restaurant":
         )
 
         st.subheader("2. Priorities")
-        # Multiselect (High Contrast)
+        # Multiselect (Using PRIORITY_OPTIONS - excluding cuisines)
         selected_priorities = st.multiselect(
             "What matters most?",
-            TOPIC_COLS,
+            PRIORITY_OPTIONS,
             default=["Food Quality", "Service Operations/Speed"],
             placeholder="Select aspects..."
         )
@@ -448,6 +468,12 @@ elif page == "📊 Methodology & Insights":
             st.markdown("#### Performance Metrics")
             st.metric("Accuracy", "87.03%")
             st.metric("F1-Score", "85.00%")
+            st.markdown("#### Confusion Matrix")
+            # Image display code for confusion matrix
+            if os.path.exists("confusion_matrix.png"):
+                st.image("confusion_matrix.png", caption="RoBERTa Confusion Matrix")
+            elif os.path.exists("images/confusion_matrix.png"):
+                st.image("images/confusion_matrix.png", caption="RoBERTa Confusion Matrix")
         
         with col2:
             st.markdown("#### Class Performance")
@@ -466,8 +492,8 @@ elif page == "📊 Methodology & Insights":
         with c1: 
             st.markdown("### Word Cloud")
             st.info("""
-            In the word clouds, positive reviews (stars ≥ 4) are characterized by words like "excellent," "delicious," "friendly," and "experience." 
-            Negative reviews (stars ≤ 2) are characterized by operational terms like "ordered," "table," "waiter," and "asked." 
+            Figure 4. Word Cloud: In the word clouds, positive reviews with stars ≥ 4 are characterized by words like "excellent," "delicious," "friendly," and "experience." 
+            Negative reviews with stars ≤ 2 are characterized by the operational terms like "ordered," "table," "waiter," and "asked." 
             This implies that negative experiences often come from logistical failures (e.g., slow service, ignored orders) rather than just bad food.
             """)
             if os.path.exists("wordcloud.png"): st.image("wordcloud.png")
@@ -476,9 +502,9 @@ elif page == "📊 Methodology & Insights":
         with c2:
             st.markdown("### N-Gram Analysis")
             st.info("""
-            From the N-Gram analysis, phrases like "friendly staff" are the most common bigrams. 
+            From the N-Gram analysis, phrase like "friendly staff" are the most common bigrams. 
             Other notable phrases include specific popular dishes or locations in Kuala Lumpur, like "dim sum," "soft shell crab," and "Petronas Twin Tower," 
-            indicating that tourists prefer specific signature dishes or restaurants near landmarks.
+            indicating that tourists prefer specific signature dishes or restaurant near the landmark.
             """)
             if os.path.exists("ngram.png"): st.image("ngram.png")
             elif os.path.exists("images/ngram.png"): st.image("images/ngram.png")
