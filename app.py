@@ -36,43 +36,44 @@ st.markdown("""
     section[data-testid="stSidebar"] * { color: #FFFFFF !important; }
     
     /* --------------------------------------
-       DROPDOWN VISIBILITY FIX (White Text on Dark Background)
+       CRITICAL DROPDOWN VISIBILITY FIX 
        -------------------------------------- */
     
-    /* The Clickable Box */
+    /* The Clickable Input Box */
     .stSelectbox > div > div, .stMultiSelect > div > div {
         background-color: #2C3E50 !important;
         color: white !important;
         border: 1px solid #5B7C99;
     }
     
-    /* Text inside the clickable box */
+    /* Text inside the Input Box */
     .stSelectbox div[data-testid="stMarkdownContainer"] p, 
     .stMultiSelect div[data-testid="stMarkdownContainer"] p {
         color: white !important;
+        font-weight: bold !important;
     }
     
-    /* The Dropdown Menu List */
+    /* The Dropdown Pop-up Menu */
     ul[data-baseweb="menu"] {
         background-color: #2C3E50 !important;
     }
     
-    /* The Options in the list */
+    /* List Items in the Menu */
     li[data-baseweb="option"] {
         color: white !important;
     }
     
-    /* Hover State for Options */
-    li[data-baseweb="option"]:hover {
+    /* Hover Effect on List Items */
+    li[data-baseweb="option"]:hover, li[aria-selected="true"] {
         background-color: #D4788C !important;
         color: white !important;
     }
     
-    /* Selected Tags in MultiSelect */
-    .stMultiSelect div[data-baseweb="tag"] {
+    /* Selected Tags (Chips) in MultiSelect */
+    .stMultiSelect span[data-baseweb="tag"] {
         background-color: #D4788C !important;
     }
-    .stMultiSelect div[data-baseweb="tag"] span {
+    .stMultiSelect span[data-baseweb="tag"] span {
         color: white !important;
     }
 
@@ -332,7 +333,7 @@ elif page == "🔍 Find Your Restaurant":
 
     with col1:
         st.subheader("1. Cuisine Filter")
-        # Cuisine Dropdown
+        # Cuisine Dropdown (High Contrast)
         cuisine_pref = st.selectbox(
             "Select Cuisine Type",
             ["All Cuisines", "Asian Cuisine", "Western Cuisine"],
@@ -340,10 +341,7 @@ elif page == "🔍 Find Your Restaurant":
         )
 
         st.subheader("2. Priorities")
-        # Multiselect for Ranking
-        # We remove the cuisine types from this list to avoid redundancy, 
-        # or keep them if you want users to weigh them heavily. 
-        # Here we keep them in case they want to Rank by "Asian" even if filtered by "All".
+        # Multiselect (High Contrast)
         selected_priorities = st.multiselect(
             "What matters most?",
             TOPIC_COLS,
@@ -464,18 +462,26 @@ elif page == "📊 Methodology & Insights":
     with tab3:
         st.subheader("Exploratory Analysis")
         c1, c2 = st.columns(2)
+        
         with c1: 
-            st.markdown("**Word Cloud**")
-            # Try multiple paths
+            st.markdown("### Word Cloud")
+            st.info("""
+            In the word clouds, positive reviews (stars ≥ 4) are characterized by words like "excellent," "delicious," "friendly," and "experience." 
+            Negative reviews (stars ≤ 2) are characterized by operational terms like "ordered," "table," "waiter," and "asked." 
+            This implies that negative experiences often come from logistical failures (e.g., slow service, ignored orders) rather than just bad food.
+            """)
             if os.path.exists("wordcloud.png"): st.image("wordcloud.png")
             elif os.path.exists("images/wordcloud.png"): st.image("images/wordcloud.png")
-            else: st.warning("Image not found")
             
         with c2:
-            st.markdown("**N-Gram**")
+            st.markdown("### N-Gram Analysis")
+            st.info("""
+            From the N-Gram analysis, phrases like "friendly staff" are the most common bigrams. 
+            Other notable phrases include specific popular dishes or locations in Kuala Lumpur, like "dim sum," "soft shell crab," and "Petronas Twin Tower," 
+            indicating that tourists prefer specific signature dishes or restaurants near landmarks.
+            """)
             if os.path.exists("ngram.png"): st.image("ngram.png")
             elif os.path.exists("images/ngram.png"): st.image("images/ngram.png")
-            else: st.warning("Image not found")
 
 st.markdown("---")
 st.markdown("<div style='text-align: center; color: grey;'>KL Dining Assistant © 2025</div>", unsafe_allow_html=True)
