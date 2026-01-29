@@ -20,23 +20,19 @@ st.set_page_config(
 # ==========================================
 st.markdown("""
 <style>
-    /* Main background */
     .stApp { 
         background: linear-gradient(135deg, #355C7D 0%, #6C5B7B 50%, #C06C84 100%); 
         color: #FFFFFF; 
     }
     
-    /* Headers */
     h1, h2, h3, h4, h5, h6 { 
         color: #FFFFFF !important; 
         text-shadow: 2px 2px 4px rgba(0,0,0,0.5); 
     }
     
-    /* Metrics */
     div[data-testid="stMetricValue"] { color: #F8B195 !important; font-size: 1.5rem !important; }
     div[data-testid="stMetricLabel"] { color: #FFFFFF !important; }
     
-    /* Sidebar */
     section[data-testid="stSidebar"] { 
         background-color: #2A3E50; 
         color: #FFFFFF; 
@@ -47,7 +43,6 @@ st.markdown("""
         color: #F8B195 !important; 
     }
     
-    /* Buttons */
     div.stButton > button { 
         background-color: #F8B195; 
         color: #355C7D; 
@@ -63,7 +58,6 @@ st.markdown("""
         transform: scale(1.05);
     }
     
-    /* Cards */
     .restaurant-card {
         background: rgba(255,255,255,0.1);
         border-radius: 15px;
@@ -83,35 +77,6 @@ st.markdown("""
         margin-right: 10px;
     }
     
-    .metric-box {
-        background: rgba(255,255,255,0.15);
-        border-radius: 10px;
-        padding: 1rem;
-        text-align: center;
-        margin: 0.5rem;
-    }
-    
-    .review-box {
-        background: rgba(255,255,255,0.1);
-        border-radius: 10px;
-        padding: 1rem;
-        margin: 0.5rem 0;
-        font-style: italic;
-        border-left: 3px solid #F8B195;
-    }
-    
-    /* Expander styling */
-    .streamlit-expanderHeader {
-        background-color: rgba(255,255,255,0.1) !important;
-        border-radius: 10px !important;
-    }
-    
-    /* Multiselect */
-    .stMultiSelect > div > div {
-        background-color: rgba(255,255,255,0.9) !important;
-    }
-    
-    /* Winner badge */
     .winner-badge {
         background: linear-gradient(135deg, #FFD700, #FFA500);
         color: #333;
@@ -121,11 +86,6 @@ st.markdown("""
         text-align: center;
         margin: 1rem 0;
     }
-    
-    /* Table styling */
-    .dataframe {
-        background-color: rgba(255,255,255,0.9) !important;
-    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -134,7 +94,6 @@ st.markdown("""
 # ==========================================
 @st.cache_data
 def load_data():
-    """Load and clean the restaurant data"""
     filename = 'streamlitdata.csv'
     if not os.path.exists(filename):
         return None
@@ -192,19 +151,6 @@ def calculate_wlc_score(row, selected_topics):
     
     return total_score / total_weight
 
-def get_sample_reviews(restaurant_name, num_reviews=3):
-    """Get sample review texts for a restaurant"""
-    if 'review' not in df.columns:
-        return ["Review text not available in dataset"]
-    
-    restaurant_reviews = df[df['restaurant'] == restaurant_name]['review'].dropna()
-    
-    if len(restaurant_reviews) == 0:
-        return ["No reviews available"]
-    
-    sample_size = min(num_reviews, len(restaurant_reviews))
-    return restaurant_reviews.sample(sample_size).tolist()
-
 # ==========================================
 # 6. SIDEBAR
 # ==========================================
@@ -236,7 +182,6 @@ ID: 24088031
 if page == "Best of The Best":
     st.title("Best of The Best")
     st.markdown("### Top 20 Highest-Rated Restaurants in Kuala Lumpur")
-    st.markdown("*Click on any restaurant to view customer reviews*")
     st.divider()
     
     if 'review_count' in df.columns and 'avg_rating' in df.columns:
@@ -253,37 +198,20 @@ if page == "Best of The Best":
         
         top_restaurants = top_restaurants.sort_values('avg_rating', ascending=False).head(20)
         
-        for idx, (_, row) in enumerate(top_restaurants.iterrows()):
-            rank = idx + 1
-            restaurant_name = row['restaurant']
-            rating = row['avg_rating']
-            review_count = row['review_count']
-            
-            rank_display = f"#{rank}"
-            
-            with st.expander(f"{rank_display} **{restaurant_name}** — {rating:.2f} ({int(review_count)} reviews)"):
-                col1, col2, col3 = st.columns(3)
-                
-                with col1:
-                    st.metric("Rating", f"{rating:.2f} / 5.0")
-                with col2:
-                    st.metric("Reviews", f"{int(review_count)}")
-                with col3:
-                    st.metric("Rank", f"#{rank}")
-                
-                st.markdown("---")
-                st.markdown("#### Customer Reviews (Sample of 15)")
-                
-                reviews = get_sample_reviews(restaurant_name, num_reviews=15)
-                
-                for i, review in enumerate(reviews, 1):
-                    if isinstance(review, str) and len(review) > 10:
-                        display_review = review[:500] + "..." if len(review) > 500 else review
-                        st.markdown(f"""
-                        <div class="review-box">
-                            <strong>Review {i}:</strong> "{display_review}"
-                        </div>
-                        """, unsafe_allow_html=True)
+        # Display as table
+        st.dataframe(
+            top_restaurants.rename(columns={
+                'restaurant': 'Restaurant',
+                'avg_rating': 'Rating',
+                'review_count': 'Reviews'
+            }),
+            hide_index=True,
+            use_container_width=True,
+            column_config={
+                "Rating": st.column_config.NumberColumn(format="%.2f"),
+                "Reviews": st.column_config.NumberColumn(format="%d")
+            }
+        )
     else:
         st.error("Required columns 'avg_rating' or 'review_count' not found in data.")
 
@@ -403,13 +331,6 @@ elif page == "Find Your Restaurant":
                         with m3:
                             st.metric("Reviews", f"{int(review_count)}")
                         
-                        with st.expander(f"View Customer Reviews"):
-                            reviews = get_sample_reviews(restaurant_name, num_reviews=5)
-                            for i, review in enumerate(reviews, 1):
-                                if isinstance(review, str) and len(review) > 10:
-                                    display_review = review[:400] + "..." if len(review) > 400 else review
-                                    st.markdown(f'> **Review {i}:** "{display_review}"')
-                        
                         st.markdown("---")
                     
                     with st.expander("How is Match Score calculated?"):
@@ -466,9 +387,7 @@ elif page == "Methodology & Insights":
     
     tab1, tab2, tab3 = st.tabs(["LDA Topic Modeling", "RoBERTa Sentiment", "EDA Visualizations"])
     
-    # ==========================================
     # TAB 1: LDA MODEL
-    # ==========================================
     with tab1:
         st.markdown("## Latent Dirichlet Allocation (LDA)")
         
@@ -528,9 +447,7 @@ elif page == "Methodology & Insights":
             </div>
             """, unsafe_allow_html=True)
     
-    # ==========================================
     # TAB 2: RoBERTa SENTIMENT
-    # ==========================================
     with tab2:
         st.markdown("## RoBERTa Sentiment Analysis")
         
@@ -615,9 +532,7 @@ elif page == "Methodology & Insights":
         - Model exhibits slight bias toward positive predictions
         """)
     
-    # ==========================================
     # TAB 3: EDA
-    # ==========================================
     with tab3:
         st.markdown("## Exploratory Data Analysis")
         
@@ -630,9 +545,7 @@ elif page == "Methodology & Insights":
             wordcloud_paths = [
                 'images/wordcloud.png',
                 'figures/wordcloud.png',
-                'wordcloud.png',
-                'images/wordclouds.png',
-                'figures/wordclouds.png'
+                'wordcloud.png'
             ]
             
             wordcloud_found = False
@@ -643,14 +556,7 @@ elif page == "Methodology & Insights":
                     break
             
             if not wordcloud_found:
-                st.info("""
-                Word Cloud image not found.
-                
-                Please upload to: `images/wordcloud.png`
-                
-                The word cloud visualizes term frequency distribution, 
-                with larger terms indicating higher occurrence in the corpus.
-                """)
+                st.info("Word Cloud image not found. Please upload to: images/wordcloud.png")
         
         with eda_tab2:
             st.markdown("### N-gram Analysis")
@@ -659,9 +565,7 @@ elif page == "Methodology & Insights":
             ngram_paths = [
                 'images/ngram.png',
                 'figures/ngram.png',
-                'ngram.png',
-                'images/ngram_analysis.png',
-                'figures/ngram_analysis.png'
+                'ngram.png'
             ]
             
             ngram_found = False
@@ -672,14 +576,7 @@ elif page == "Methodology & Insights":
                     break
             
             if not ngram_found:
-                st.info("""
-                N-gram image not found.
-                
-                Please upload to: `images/ngram.png`
-                
-                N-gram analysis identifies frequently co-occurring word sequences,
-                revealing common expressions and phrases in the review corpus.
-                """)
+                st.info("N-gram image not found. Please upload to: images/ngram.png")
 
 # ==========================================
 # FOOTER
