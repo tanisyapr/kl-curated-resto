@@ -26,821 +26,433 @@ st.markdown("""
         color: #2C3E50; 
     }
     
-    /* Headers - dark text for readability */
-    h1 { 
-        color: #5B7C99 !important; 
-        font-weight: 700 !important;
-    }
-    h2, h3, h4, h5, h6 { 
-        color: #7C5B7D !important; 
-        font-weight: 600 !important;
-    }
-    
-    /* Paragraphs and text */
-    p, span, label {
-        color: #2C3E50 !important;
-    }
-    
-    /* Metrics */
-    div[data-testid="stMetricValue"] { 
-        color: #D4788C !important; 
-        font-size: 1.5rem !important; 
-        font-weight: bold !important;
-    }
-    div[data-testid="stMetricLabel"] { 
-        color: #5B7C99 !important; 
-        font-weight: 600 !important;
-    }
+    /* Typography */
+    h1 { color: #5B7C99 !important; font-weight: 800 !important; }
+    h2, h3 { color: #7C5B7D !important; font-weight: 700 !important; }
+    p, label, span, div { color: #2C3E50; }
     
     /* Sidebar */
     section[data-testid="stSidebar"] { 
         background: linear-gradient(180deg, #5B7C99 0%, #7C5B7D 100%);
     }
-    section[data-testid="stSidebar"] * { 
-        color: #FFFFFF !important; 
-    }
+    section[data-testid="stSidebar"] * { color: #FFFFFF !important; }
     
-    /* Buttons */
-    div.stButton > button { 
-        background: linear-gradient(135deg, #F4A5B8 0%, #A5C4D4 100%);
-        color: #2C3E50 !important; 
-        font-weight: bold; 
-        border: none; 
-        border-radius: 25px;
-        padding: 0.6rem 2rem;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    }
-    div.stButton > button:hover { 
-        background: linear-gradient(135deg, #D4788C 0%, #5B7C99 100%);
-        color: #FFFFFF !important; 
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(0,0,0,0.15);
-    }
-    
-    /* MULTISELECT & DROPDOWN - HIGH CONTRAST FIX */
-    .stMultiSelect > div > div {
+    /* --------------------------------------
+       DROPDOWN & INPUT VISIBILITY FIXES 
+       -------------------------------------- */
+    /* Input boxes */
+    .stMultiSelect div[data-baseweb="select"] > div {
         background-color: #FFFFFF !important;
         border: 2px solid #5B7C99 !important;
-        border-radius: 10px !important;
-    }
-    .stMultiSelect span {
         color: #2C3E50 !important;
     }
+    
+    /* The selected tags inside the box */
     .stMultiSelect div[data-baseweb="tag"] {
         background-color: #D4788C !important;
-        color: #FFFFFF !important;
     }
     .stMultiSelect div[data-baseweb="tag"] span {
         color: #FFFFFF !important;
-    }
-    .stMultiSelect svg {
-        fill: #FFFFFF !important;
+        font-weight: bold !important;
     }
     
-    /* Selectbox dropdown */
-    .stSelectbox > div > div {
-        background-color: #FFFFFF !important;
-        border: 2px solid #5B7C99 !important;
-        border-radius: 10px !important;
-        color: #2C3E50 !important;
-    }
-    .stSelectbox label {
-        color: #2C3E50 !important;
-        font-weight: 600 !important;
-    }
-    
-    /* Dropdown menu items */
-    div[data-baseweb="popover"] {
+    /* The dropdown list items */
+    ul[data-baseweb="menu"] {
         background-color: #FFFFFF !important;
     }
-    div[data-baseweb="popover"] li {
-        color: #2C3E50 !important;
+    ul[data-baseweb="menu"] li {
+        color: #2C3E50 !important; /* Dark text for contrast */
+        background-color: #FFFFFF !important;
     }
-    div[data-baseweb="popover"] li:hover {
-        background-color: #F8E8F0 !important;
+    ul[data-baseweb="menu"] li:hover {
+        background-color: #F8E8F0 !important; /* Pink hover */
+        font-weight: bold !important;
     }
     
-    /* Restaurant cards */
+    /* --------------------------------------
+       RESTAURANT CARDS 
+       -------------------------------------- */
     .restaurant-card {
-        background: linear-gradient(135deg, #FFFFFF 0%, #F8F0F4 100%);
+        background: white;
         border-radius: 15px;
         padding: 1.5rem;
-        margin: 1rem 0;
-        border-left: 5px solid #D4788C;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        margin-bottom: 1rem;
+        border-left: 6px solid #D4788C;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        transition: transform 0.2s;
+    }
+    .restaurant-card:hover {
+        transform: scale(1.01);
+        box-shadow: 0 6px 20px rgba(0,0,0,0.1);
     }
     
+    /* Rank Badges */
     .rank-badge {
-        background: linear-gradient(135deg, #D4788C, #A5C4D4);
-        color: white !important;
-        padding: 0.4rem 1rem;
-        border-radius: 20px;
-        font-weight: bold;
         display: inline-block;
+        padding: 0.3rem 0.8rem;
+        border-radius: 20px;
+        color: white;
+        font-weight: bold;
         margin-right: 10px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        font-size: 0.9rem;
     }
-    
+    .badge-gold { background: linear-gradient(135deg, #FFD700, #FFA500); }
+    .badge-silver { background: linear-gradient(135deg, #C0C0C0, #A9A9A9); }
+    .badge-bronze { background: linear-gradient(135deg, #CD7F32, #8B4513); }
+    .badge-blue { background: linear-gradient(135deg, #5B7C99, #A5C4D4); }
+
+    /* Review Box */
     .review-box {
-        background: #FFFFFF;
-        border-radius: 10px;
-        padding: 1rem;
-        margin: 0.5rem 0;
-        border-left: 4px solid #A5C4D4;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        color: #2C3E50 !important;
+        background-color: #FFFFFF;
+        border: 1px solid #E0E0E0;
+        border-radius: 8px;
+        padding: 12px;
+        margin-top: 8px;
+        font-style: italic;
+        color: #555;
+        border-left: 3px solid #5B7C99;
     }
     
-    .review-box strong {
-        color: #5B7C99 !important;
+    /* Metrics */
+    div[data-testid="stMetricValue"] {
+        color: #D4788C !important;
     }
     
-    /* Winner badge */
-    .winner-badge {
-        background: linear-gradient(135deg, #A5C4D4, #D4788C);
+    /* Buttons */
+    div.stButton > button {
+        background: linear-gradient(90deg, #D4788C 0%, #7C5B7D 100%);
         color: white !important;
-        padding: 0.8rem 1.5rem;
+        border: none;
         border-radius: 25px;
         font-weight: bold;
-        text-align: center;
-        margin: 1rem 0;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        padding: 0.5rem 2rem;
     }
-    
-    /* TOP 20 CARDS - COLORFUL */
-    .top-card-gold {
-        background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
-        border-radius: 15px;
-        padding: 1.5rem;
-        margin: 0.8rem 0;
-        box-shadow: 0 6px 20px rgba(255,215,0,0.3);
-        border: none;
+    div.stButton > button:hover {
+        opacity: 0.9;
+        transform: translateY(-1px);
     }
-    .top-card-silver {
-        background: linear-gradient(135deg, #E8E8E8 0%, #C0C0C0 100%);
-        border-radius: 15px;
-        padding: 1.5rem;
-        margin: 0.8rem 0;
-        box-shadow: 0 6px 20px rgba(192,192,192,0.3);
-        border: none;
-    }
-    .top-card-bronze {
-        background: linear-gradient(135deg, #E8C4A0 0%, #CD7F32 100%);
-        border-radius: 15px;
-        padding: 1.5rem;
-        margin: 0.8rem 0;
-        box-shadow: 0 6px 20px rgba(205,127,50,0.3);
-        border: none;
-    }
-    .top-card-regular {
-        background: linear-gradient(135deg, #FFFFFF 0%, #F0F8FF 100%);
-        border-radius: 15px;
-        padding: 1.2rem;
-        margin: 0.6rem 0;
-        border-left: 4px solid #A5C4D4;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.06);
-    }
-    
-    .rank-gold { color: #8B6914 !important; font-size: 2rem !important; font-weight: bold !important; }
-    .rank-silver { color: #5A5A5A !important; font-size: 1.8rem !important; font-weight: bold !important; }
-    .rank-bronze { color: #8B4513 !important; font-size: 1.6rem !important; font-weight: bold !important; }
-    .rank-regular { color: #5B7C99 !important; font-size: 1.2rem !important; font-weight: bold !important; }
-    
-    .restaurant-name-top {
-        font-size: 1.4rem !important;
-        font-weight: bold !important;
-        color: #2C3E50 !important;
-    }
-    
-    /* Expander */
-    .streamlit-expanderHeader {
-        background: linear-gradient(135deg, #F8F0F4 0%, #E8F4F8 100%) !important;
-        border-radius: 10px !important;
-        color: #2C3E50 !important;
-        font-weight: 600 !important;
-    }
-    
-    /* Tab styling */
-    .stTabs [data-baseweb="tab-list"] {
-        gap: 8px;
-    }
-    .stTabs [data-baseweb="tab"] {
-        background-color: #F8F0F4;
-        border-radius: 10px;
-        color: #5B7C99 !important;
-        font-weight: 600;
-    }
-    .stTabs [aria-selected="true"] {
-        background: linear-gradient(135deg, #D4788C, #A5C4D4) !important;
-        color: white !important;
-    }
-    
-    /* Radio buttons */
-    .stRadio > label {
-        color: #2C3E50 !important;
-        font-weight: 500 !important;
-    }
-    .stRadio div[role="radiogroup"] label {
-        color: #2C3E50 !important;
-    }
-    
-    /* Slider labels */
-    .stSlider label {
-        color: #2C3E50 !important;
-        font-weight: 600 !important;
-    }
+
 </style>
 """, unsafe_allow_html=True)
 
 # ==========================================
-# 3. DATA LOADING
+# 3. DATA LOADING & CLEANING
 # ==========================================
+# Define your exact topics based on your previous processing
+TOPIC_COLS = [
+    'Ambiance & Atmosphere',
+    'Staff Friendliness',
+    'Asian Cuisine',
+    'Management',
+    'Service Operations/Speed',
+    'Western Cuisine',
+    'Food Quality'
+]
+
 @st.cache_data
-def load_data():
+def load_and_clean_data():
     filename = 'streamlitdata.csv'
     if not os.path.exists(filename):
         return None
+    
     try:
         df = pd.read_csv(filename)
+        
+        # 1. Clean Column Names
         df.columns = df.columns.str.strip()
+        
+        # 2. Fix Ratings (The 12/5 Bug Fix)
+        # Force convert to numeric, coerce errors to NaN
+        df['avg_rating'] = pd.to_numeric(df['avg_rating'], errors='coerce')
+        # Clip values strictly between 1.0 and 5.0
+        df['avg_rating'] = df['avg_rating'].clip(1.0, 5.0)
+        
+        # 3. Fix Review Counts
+        df['review_count'] = pd.to_numeric(df['review_count'], errors='coerce').fillna(0).astype(int)
+        
+        # 4. Fix Topic Scores
+        for col in TOPIC_COLS:
+            if col in df.columns:
+                df[col] = pd.to_numeric(df[col], errors='coerce').fillna(3.0).clip(1.0, 5.0)
+                
+        # 5. Ensure Text Columns Exist (Avoid KeyErrors)
+        for col in TOPIC_COLS:
+            text_col = f"{col}_text"
+            if text_col not in df.columns:
+                df[text_col] = "No specific mentions."
+            else:
+                df[text_col] = df[text_col].fillna("No specific mentions.")
+                
         return df
+        
     except Exception as e:
-        st.error(f"Error loading data: {e}")
+        st.error(f"Error processing data: {e}")
         return None
 
-df = load_data()
+df = load_and_clean_data()
 
 if df is None:
-    st.error("Data file 'streamlitdata.csv' not found. Please ensure the file is uploaded.")
+    st.error("⚠️ Data file 'streamlitdata.csv' not found. Please upload the file generated from the previous step.")
     st.stop()
 
 # ==========================================
-# 4. DEFINE TOPIC COLUMNS (YOUR ACTUAL DATA)
-# ==========================================
-TOPIC_COLUMNS = [
-    'FOOD QUALITY',
-    'LOCATION',
-    'SERVICE',
-    'Topic 5',
-    'VALUE'
-]
-
-# User-friendly labels for display
-TOPIC_LABELS = {
-    'FOOD QUALITY': 'Food Quality',
-    'LOCATION': 'Location & Accessibility',
-    'SERVICE': 'Service Quality',
-    'Topic 5': 'Dining Experience',
-    'VALUE': 'Value for Money'
-}
-
-available_topics = [col for col in TOPIC_COLUMNS if col in df.columns]
-
-# ==========================================
-# 5. HELPER FUNCTIONS
+# 4. HELPER FUNCTIONS
 # ==========================================
 def calculate_wlc_score(row, selected_topics):
-    """
-    Calculate Weighted Linear Combination (WLC) score
-    Formula: Score = Σ(weight × aspect_score) / Σ(weights)
-    Ensures score is within 1-5 range
-    """
+    """Weighted Linear Combination Score (1-5)"""
     if not selected_topics:
-        rating = row.get('avg_rating', 3.0)
-        return min(max(float(rating), 1.0), 5.0)
+        return row['avg_rating']
     
-    total_score = 0
-    total_weight = 0
-    
+    scores = []
     for topic in selected_topics:
-        if topic in row and pd.notna(row[topic]):
-            score = float(row[topic])
-            # Ensure score is within valid range
-            score = min(max(score, 1.0), 5.0)
-            weight = 1.0
-            total_score += weight * score
-            total_weight += weight
-    
-    if total_weight == 0:
-        rating = row.get('avg_rating', 3.0)
-        return min(max(float(rating), 1.0), 5.0)
-    
-    final_score = total_score / total_weight
-    # Ensure final score is within 1-5
-    return min(max(final_score, 1.0), 5.0)
+        if topic in row:
+            scores.append(row[topic])
+            
+    if not scores:
+        return row['avg_rating']
+        
+    return sum(scores) / len(scores)
 
-def get_sample_reviews(restaurant_name, num_reviews=5):
-    """Get sample review texts for a restaurant from text columns"""
-    restaurant_data = df[df['restaurant'] == restaurant_name]
-    if len(restaurant_data) == 0:
-        return []
-    
-    row = restaurant_data.iloc[0]
+def get_aggregated_reviews(row, selected_topics=None):
+    """Collects reviews from the text columns of selected topics"""
     reviews = []
     
-    # Collect from all text columns
-    text_columns = ['FOOD QUALITY_text', 'LOCATION_text', 'SERVICE_text', 'Topic 5_text', 'VALUE_text']
+    # If specific topics selected, look there first
+    targets = selected_topics if selected_topics else TOPIC_COLS
     
-    for col in text_columns:
-        if col in row and pd.notna(row[col]):
-            text = str(row[col])
-            if text and text != 'nan' and text != 'No specific mentions.' and len(text) > 10:
-                # Split if multiple reviews in one cell
-                parts = text.split(' | ')
-                for part in parts:
-                    if part.strip() and part.strip() != 'No specific mentions.' and len(part.strip()) > 10:
-                        reviews.append(part.strip())
-    
-    return reviews[:num_reviews]
-
-def format_rating(rating):
-    """Format rating to be within 1-5 scale"""
-    try:
-        r = float(rating)
-        r = min(max(r, 1.0), 5.0)
-        return f"{r:.2f}"
-    except:
-        return "N/A"
+    for topic in targets:
+        text_col = f"{topic}_text"
+        if text_col in row:
+            text = str(row[text_col])
+            # Filter out placeholders
+            if len(text) > 15 and "No specific mentions" not in text:
+                reviews.append(text)
+                
+    # Deduplicate and limit
+    return list(set(reviews))[:3]
 
 # ==========================================
-# 6. SIDEBAR
+# 5. SIDEBAR NAVIGATION
 # ==========================================
-st.sidebar.markdown("# KL Dining Assistant")
-st.sidebar.markdown("**Topic-Based Restaurant Recommendation System**")
+st.sidebar.markdown("# 🍽️ KL Dining")
+st.sidebar.markdown("### Smart Recommendations")
 st.sidebar.markdown("---")
-st.sidebar.markdown("### Navigate")
 
 page = st.sidebar.radio(
-    "",
-    ["Best of The Best", "Find Your Restaurant", "Methodology & Insights"],
+    "Go to",
+    ["🏆 Best of The Best", "🔍 Find Your Restaurant", "📊 Methodology & Insights"],
     label_visibility="collapsed"
 )
 
 st.sidebar.markdown("---")
-st.sidebar.markdown("### About")
-st.sidebar.markdown("""
-**Thesis Project**  
-University of Malaya  
-Master of Data Science  
-
-**Tanisya Pristi Azrelia**  
-24088031
-""")
+st.sidebar.info(
+    """
+    **Thesis Project** Master of Data Science  
+    University of Malaya  
+    **Tanisya Pristi Azrelia** (24088031)
+    """
+)
 
 # ==========================================
-# PAGE 1: BEST OF THE BEST (Colorful & Interactive)
+# PAGE 1: BEST OF THE BEST
 # ==========================================
-if page == "Best of The Best":
-    st.title("Best of The Best")
+if page == "🏆 Best of The Best":
+    st.title("🏆 Best of The Best")
     st.markdown("### Top 20 Highest-Rated Restaurants in Kuala Lumpur")
-    st.markdown("*Click on any restaurant to view customer reviews*")
+    st.markdown("These rankings are based on overall Google ratings and review volume. **Click on a restaurant card to read what people are saying.**")
     st.divider()
-    
-    if 'review_count' in df.columns and 'avg_rating' in df.columns:
-        qualified_df = df[df['review_count'] >= 50].copy()
+
+    # Filter for reliability (e.g., at least 50 reviews)
+    qualified_df = df[df['review_count'] >= 50].copy()
+    if qualified_df.empty:
+        qualified_df = df.copy() # Fallback
+
+    # Sort by Rating desc, then Review Count desc
+    top_20 = qualified_df.sort_values(by=['avg_rating', 'review_count'], ascending=[False, False]).head(20)
+
+    for i, (index, row) in enumerate(top_20.iterrows()):
+        rank = i + 1
+        name = row['restaurant']
+        rating = row['avg_rating']
+        count = row['review_count']
         
-        if len(qualified_df) == 0:
-            qualified_df = df.copy()
-            st.info("Showing all restaurants")
-        
-        # Ensure rating is within valid range
-        qualified_df['avg_rating'] = qualified_df['avg_rating'].apply(lambda x: min(max(float(x), 1.0), 5.0))
-        
-        top_restaurants = qualified_df.groupby('restaurant').agg({
-            'avg_rating': 'mean',
-            'review_count': 'first'
-        }).reset_index()
-        
-        # Ensure aggregated rating is within range
-        top_restaurants['avg_rating'] = top_restaurants['avg_rating'].apply(lambda x: min(max(x, 1.0), 5.0))
-        
-        top_restaurants = top_restaurants.sort_values('avg_rating', ascending=False).head(20)
-        
-        for idx, (_, row) in enumerate(top_restaurants.iterrows()):
-            rank = idx + 1
-            restaurant_name = row['restaurant']
-            rating = min(max(row['avg_rating'], 1.0), 5.0)  # Ensure 1-5 range
-            review_count = int(row['review_count'])
+        # Badge Logic
+        if rank == 1:
+            badge_class = "badge-gold"
+            icon = "🥇"
+        elif rank == 2:
+            badge_class = "badge-silver"
+            icon = "🥈"
+        elif rank == 3:
+            badge_class = "badge-bronze"
+            icon = "🥉"
+        else:
+            badge_class = "badge-blue"
+            icon = f"#{rank}"
+
+        # Card Content (Clickable Expander)
+        with st.expander(f"{icon}  {name}  —  ⭐ {rating:.1f}/5.0", expanded=(rank<=3)):
             
-            # Different styling for top 3
-            if rank == 1:
-                card_class = "top-card-gold"
-                rank_class = "rank-gold"
-                rank_emoji = "🥇"
-            elif rank == 2:
-                card_class = "top-card-silver"
-                rank_class = "rank-silver"
-                rank_emoji = "🥈"
-            elif rank == 3:
-                card_class = "top-card-bronze"
-                rank_class = "rank-bronze"
-                rank_emoji = "🥉"
-            else:
-                card_class = "top-card-regular"
-                rank_class = "rank-regular"
-                rank_emoji = f"#{rank}"
-            
-            with st.expander(f"{rank_emoji}  {restaurant_name}  —  {rating:.2f}/5.0  ({review_count} reviews)", expanded=(rank <= 3)):
-                st.markdown(f"""
-                <div class="{card_class}">
-                    <span class="{rank_class}">{rank_emoji}</span>
-                    <span class="restaurant-name-top">{restaurant_name}</span>
+            # Metrics
+            c1, c2, c3 = st.columns(3)
+            c1.metric("Google Rating", f"{rating:.2f}")
+            c2.metric("Total Reviews", f"{count:,}")
+            c3.markdown(f"""
+                <div style="text-align:center; padding-top:10px;">
+                    <span class="rank-badge {badge_class}" style="font-size:1.2rem;">Rank {rank}</span>
                 </div>
-                """, unsafe_allow_html=True)
-                
-                col1, col2, col3 = st.columns(3)
-                with col1:
-                    st.metric("Rating", f"{rating:.2f} / 5.0")
-                with col2:
-                    st.metric("Total Reviews", f"{review_count}")
-                with col3:
-                    st.metric("Rank", f"#{rank}")
-                
-                st.markdown("---")
-                st.markdown("#### Customer Reviews")
-                
-                reviews = get_sample_reviews(restaurant_name, num_reviews=8)
-                
-                if reviews:
-                    for i, review in enumerate(reviews, 1):
-                        display_review = review[:350] + "..." if len(review) > 350 else review
-                        st.markdown(f"""
-                        <div class="review-box">
-                            <strong>Review {i}:</strong> {display_review}
-                        </div>
-                        """, unsafe_allow_html=True)
-                else:
-                    st.info("No review text available for this restaurant.")
-    else:
-        st.error("Required columns 'avg_rating' or 'review_count' not found.")
+            """, unsafe_allow_html=True)
+            
+            st.markdown("#### 💬 What people say:")
+            
+            # Get reviews from all topics to show a mix
+            reviews = get_aggregated_reviews(row)
+            
+            if reviews:
+                for rev in reviews:
+                    st.markdown(f'<div class="review-box">"{rev}"</div>', unsafe_allow_html=True)
+            else:
+                st.info("No detailed text reviews available in the analysis dataset.")
 
 # ==========================================
 # PAGE 2: FIND YOUR RESTAURANT
 # ==========================================
-elif page == "Find Your Restaurant":
-    st.title("Find Your Perfect Restaurant")
-    st.markdown("### Personalized Recommendations Based on Your Preferences")
+elif page == "🔍 Find Your Restaurant":
+    st.title("🔍 Find Your Perfect Dining Spot")
+    st.markdown("### Customized Recommendations using AI")
+    st.markdown("Select what matters most to you, and our WLC (Weighted Linear Combination) algorithm will rank the best matches.")
     st.divider()
-    
-    col1, col2 = st.columns([1, 2])
-    
+
+    col1, col2 = st.columns([1, 2], gap="large")
+
     with col1:
-        st.markdown("### Step 1: Select Your Priorities")
-        st.markdown("*Choose the aspects that matter most to you*")
+        st.subheader("1. Your Preferences")
         
-        if not available_topics:
-            st.error("No topic columns found in the dataset.")
-            st.stop()
-        
-        # Create display options with friendly labels
-        display_options = [TOPIC_LABELS.get(t, t) for t in available_topics]
-        label_to_column = {TOPIC_LABELS.get(t, t): t for t in available_topics}
-        
-        # DROPDOWN MULTISELECT
-        selected_display = st.multiselect(
-            "Select dining aspects (choose one or more):",
-            options=display_options,
+        # MULTISELECT (Contrast fixed in CSS)
+        selected_priorities = st.multiselect(
+            "What are you looking for?",
+            options=TOPIC_COLS,
             default=None,
-            help="Select multiple aspects to find restaurants that excel in those areas."
+            placeholder="Select aspects (e.g. Food Quality)"
         )
         
-        # Convert back to actual column names
-        selected_priorities = [label_to_column[d] for d in selected_display]
+        st.subheader("2. Filters")
+        min_rating_filter = st.slider("Minimum Google Rating", 1.0, 5.0, 3.5, 0.1)
+        min_reviews_filter = st.slider("Minimum Review Count", 10, 500, 50, 10)
         
-        st.markdown("---")
-        st.markdown("### Step 2: Quality Filters")
-        
-        min_reviews = st.slider(
-            "Minimum reviews:",
-            min_value=1,
-            max_value=100,
-            value=10
-        )
-        
-        min_rating = st.slider(
-            "Minimum rating:",
-            min_value=1.0,
-            max_value=5.0,
-            value=3.0,
-            step=0.5
-        )
-        
-        st.markdown("---")
-        find_button = st.button("Find Restaurants", type="primary", use_container_width=True)
-    
+        find_btn = st.button("🚀 Find My Restaurant", use_container_width=True)
+
     with col2:
-        if find_button:
+        if find_btn:
             if not selected_priorities:
-                st.warning("Please select at least one priority to generate recommendations.")
+                st.warning("⚠️ Please select at least one preference in the sidebar to get started!")
             else:
-                st.markdown(f"### Top 10 Restaurants")
-                selected_labels = [TOPIC_LABELS.get(p, p) for p in selected_priorities]
-                st.markdown(f"**Selected Priorities:** {', '.join(selected_labels)}")
-                st.markdown("---")
+                st.subheader(f"Top 10 Recommendations")
+                st.caption(f"Based on: {', '.join(selected_priorities)}")
                 
-                filtered_df = df.copy()
+                # 1. Apply Filters
+                filtered = df[
+                    (df['avg_rating'] >= min_rating_filter) & 
+                    (df['review_count'] >= min_reviews_filter)
+                ].copy()
                 
-                # Apply review count filter
-                if 'review_count' in filtered_df.columns:
-                    filtered_df = filtered_df[filtered_df['review_count'] >= min_reviews]
-                
-                # Apply rating filter (ensure rating is in valid range first)
-                if 'avg_rating' in filtered_df.columns:
-                    filtered_df['avg_rating'] = filtered_df['avg_rating'].apply(lambda x: min(max(float(x), 1.0), 5.0))
-                    filtered_df = filtered_df[filtered_df['avg_rating'] >= min_rating]
-                
-                # Calculate WLC score
-                filtered_df['match_score'] = filtered_df.apply(
-                    lambda row: calculate_wlc_score(row, selected_priorities), 
-                    axis=1
-                )
-                
-                # Aggregate to restaurant level
-                restaurant_scores = filtered_df.groupby('restaurant').agg({
-                    'match_score': 'mean',
-                    'avg_rating': 'mean',
-                    'review_count': 'first'
-                }).reset_index()
-                
-                # Ensure scores are in valid range
-                restaurant_scores['match_score'] = restaurant_scores['match_score'].apply(lambda x: min(max(x, 1.0), 5.0))
-                restaurant_scores['avg_rating'] = restaurant_scores['avg_rating'].apply(lambda x: min(max(x, 1.0), 5.0))
-                
-                # Get top 10
-                top_10 = restaurant_scores.sort_values('match_score', ascending=False).head(10)
-                
-                if len(top_10) == 0:
-                    st.warning("No restaurants match your criteria. Try adjusting the filters.")
+                if filtered.empty:
+                    st.error("No restaurants found matching your filters. Try lowering the rating or review count.")
                 else:
-                    for idx, (_, row) in enumerate(top_10.iterrows()):
+                    # 2. Calculate Match Score
+                    filtered['match_score'] = filtered.apply(
+                        lambda row: calculate_wlc_score(row, selected_priorities), axis=1
+                    )
+                    
+                    # 3. Sort
+                    results = filtered.sort_values(by=['match_score', 'avg_rating'], ascending=[False, False]).head(10)
+                    
+                    # 4. Display Cards
+                    for idx, (i, row) in enumerate(results.iterrows()):
                         rank = idx + 1
-                        restaurant_name = row['restaurant']
-                        match_score = min(max(row['match_score'], 1.0), 5.0)
-                        actual_rating = min(max(row['avg_rating'], 1.0), 5.0)
-                        review_count = int(row['review_count'])
+                        score = row['match_score']
                         
                         st.markdown(f"""
                         <div class="restaurant-card">
-                            <span class="rank-badge">#{rank}</span>
-                            <strong style="font-size: 1.4rem; color: #5B7C99;">{restaurant_name}</strong>
-                        </div>
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <div>
+                                    <span class="rank-badge badge-blue">#{rank}</span>
+                                    <span style="font-size:1.3rem; font-weight:bold; color:#5B7C99;">{row['restaurant']}</span>
+                                </div>
+                                <div style="text-align:right;">
+                                    <span style="font-size:1.5rem; font-weight:bold; color:#D4788C;">{score:.1f}</span>
+                                    <span style="font-size:0.8rem; color:#888;">/ 5.0 Match</span>
+                                </div>
+                            </div>
+                            <hr style="margin:10px 0;">
+                            <div style="display:flex; gap:15px; margin-bottom:10px;">
+                                <span>⭐ <b>{row['avg_rating']:.1f}</b> Google Rating</span>
+                                <span>📝 <b>{row['review_count']}</b> Reviews</span>
+                            </div>
                         """, unsafe_allow_html=True)
                         
-                        m1, m2, m3 = st.columns(3)
-                        with m1:
-                            st.metric("Match Score", f"{match_score:.2f} / 5.0")
-                        with m2:
-                            st.metric("Google Rating", f"{actual_rating:.2f} / 5.0")
-                        with m3:
-                            st.metric("Reviews", f"{review_count}")
+                        # Show relevant snippet
+                        relevant_reviews = get_aggregated_reviews(row, selected_priorities)
+                        if relevant_reviews:
+                            snippet = relevant_reviews[0]
+                            # Bold the selected keywords if possible (simple find/replace)
+                            st.markdown(f'<div class="review-box" style="font-size:0.9rem;">"{snippet}"</div>', unsafe_allow_html=True)
                         
-                        # Show reviews
-                        reviews = get_sample_reviews(restaurant_name, num_reviews=3)
-                        if reviews:
-                            with st.expander("View Customer Reviews"):
-                                for i, review in enumerate(reviews, 1):
-                                    display_review = review[:300] + "..." if len(review) > 300 else review
-                                    st.markdown(f"""
-                                    <div class="review-box">
-                                        <strong>Review {i}:</strong> {display_review}
-                                    </div>
-                                    """, unsafe_allow_html=True)
-                        
-                        st.markdown("---")
-                    
-                    # WLC explanation
-                    with st.expander("How is Match Score calculated?"):
-                        st.markdown("""
-                        **Weighted Linear Combination (WLC) Formula:**
-                        
-                        ```
-                        Match Score = Σ(weight × aspect_score) / Σ(weights)
-                        ```
-                        
-                        With equal weights for selected preferences, the match score 
-                        represents the arithmetic mean of the selected aspect scores.
-                        
-                        **Example:**
-                        - Selected: Food Quality, Service Quality
-                        - Restaurant A: Food = 4.5, Service = 4.0
-                        - Match Score = (4.5 + 4.0) / 2 = **4.25**
-                        """)
-        else:
-            st.markdown("""
-            ### How to Use
-            
-            1. **Select your priorities** from the dropdown menu
-            2. **Set minimum thresholds** for reviews and ratings
-            3. **Click "Find Restaurants"** to view recommendations
-            
-            ---
-            
-            ### Machine Learning Pipeline
-            
-            This system combines two machine learning approaches:
-            
-            **Topic Modeling (LDA)**  
-            Latent Dirichlet Allocation extracts dining aspects from review text.
-            
-            **Sentiment Analysis (RoBERTa)**  
-            A transformer-based model quantifies sentiment for each aspect.
-            
-            **Recommendation (WLC)**  
-            Weighted Linear Combination ranks restaurants based on your priorities.
-            """)
+                        st.markdown("</div>", unsafe_allow_html=True)
 
 # ==========================================
-# PAGE 3: METHODOLOGY & INSIGHTS
+# PAGE 3: METHODOLOGY
 # ==========================================
-elif page == "Methodology & Insights":
-    st.title("Methodology & Insights")
-    st.markdown("### Machine Learning Framework for Aspect-Based Recommendation")
-    st.divider()
+elif page == "📊 Methodology & Insights":
+    st.title("📊 Methodology & Insights")
+    st.markdown("### How this system works")
     
-    tab1, tab2, tab3 = st.tabs(["LDA Topic Modeling", "RoBERTa Sentiment", "EDA"])
+    tabs = st.tabs(["🧠 Model Metrics", "🔍 EDA (WordCloud)"])
     
-    # TAB 1: LDA
-    with tab1:
-        st.markdown("## Latent Dirichlet Allocation (LDA)")
+    with tabs[0]:
+        st.subheader("RoBERTa Sentiment Analysis Performance")
+        st.markdown("We employed `cardiffnlp/twitter-roberta-base-sentiment` to analyze review sentiment. Below are the evaluation metrics against ground truth labels.")
         
         col1, col2 = st.columns(2)
-        
         with col1:
-            st.markdown("""
-            ### Overview
-            
-            LDA is a generative probabilistic model for discovering latent topics 
-            in document collections.
-            
-            **Key Assumptions:**
-            - Each document is a mixture of topics
-            - Each topic is a distribution over words
-            - Topics are discovered through probabilistic inference
-            
-            ### Model Comparison
-            
-            | Criteria | LDA | BERTopic |
-            |----------|-----|----------|
-            | Coverage | **100%** | ~55% |
-            | Topics | 5 (specified) | 81 (auto) |
-            | Outliers | **None** | 45% |
-            | Interpretability | High | Moderate |
-            
-            BERTopic generated 81 topics with 45% outliers, making it 
-            unsuitable for the recommendation interface.
-            """)
+            st.metric("Model Accuracy", "87.03%")
+            st.metric("F1-Score (Weighted)", "85.00%")
         
         with col2:
-            st.markdown("### Discovered Topics (K=5)")
-            
-            topics_data = {
-                'Topic': ['Food Quality', 'Location', 'Service', 'Topic 5', 'Value'],
-                'Description': [
-                    'Overall food quality, taste, presentation',
-                    'Restaurant location and accessibility',
-                    'Service quality and staff behavior',
-                    'General dining experience',
-                    'Value for money and pricing'
-                ]
-            }
-            
-            st.dataframe(
-                pd.DataFrame(topics_data),
-                hide_index=True,
-                use_container_width=True
-            )
-            
-            st.markdown("""
-            <div class="winner-badge">
-                LDA Selected: 100% Coverage with Interpretable Topics
-            </div>
-            """, unsafe_allow_html=True)
-    
-    # TAB 2: RoBERTa
-    with tab2:
-        st.markdown("## RoBERTa Sentiment Analysis")
-        
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            st.markdown("""
-            ### Model Specification
-            
-            **Model:** `cardiffnlp/twitter-roberta-base-sentiment-latest`
-            
-            | Attribute | Value |
-            |-----------|-------|
-            | Developer | Cardiff NLP Group |
-            | Architecture | RoBERTa-base |
-            | Pre-training | ~58M tweets |
-            | Fine-tuning | ~124M tweets |
-            | Parameters | 125 million |
-            | Output | 3 classes |
-            | Max Length | 512 tokens |
-            
-            ### Selection Rationale
-            - Pre-trained on informal text
-            - Handles colloquial language
-            - No fine-tuning required
-            """)
-        
-        with col2:
-            st.markdown("### Evaluation Metrics")
-            
-            metrics_data = {
-                'Metric': ['Accuracy', 'Precision (Positive)', 'Precision (Negative)', 
-                          'Recall (Positive)', 'Recall (Negative)', 'F1-Score'],
-                'Score': ['87.03%', '93%', '62%', '97%', '84%', '85%']
-            }
-            
-            st.dataframe(
-                pd.DataFrame(metrics_data),
-                hide_index=True,
-                use_container_width=True
-            )
-            
-            m1, m2, m3 = st.columns(3)
-            m1.metric("Accuracy", "87.03%")
-            m2.metric("F1-Score", "85%")
-            m3.metric("Recall+", "97%")
-        
-        st.markdown("---")
-        st.markdown("### Confusion Matrix")
-        
-        confusion_data = np.array([
-            [84, 16],
-            [3, 97]
-        ])
-        
-        fig = go.Figure(data=go.Heatmap(
-            z=confusion_data,
-            x=['Predicted Negative', 'Predicted Positive'],
-            y=['Actual Negative', 'Actual Positive'],
-            text=confusion_data,
-            texttemplate="%{text}%",
-            textfont={"size": 18, "color": "white"},
-            colorscale=[[0, '#A5C4D4'], [1, '#D4788C']],
-            showscale=False
-        ))
-        
-        fig.update_layout(
-            title='Confusion Matrix (Normalized %)',
-            xaxis_title='Predicted Label',
-            yaxis_title='Actual Label',
-            height=350,
-            font=dict(color='#2C3E50')
-        )
-        
-        st.plotly_chart(fig, use_container_width=True)
-    
-    # TAB 3: EDA (Wordcloud & Ngram only)
-    with tab3:
-        st.markdown("## Exploratory Data Analysis")
-        
-        eda_col1, eda_col2 = st.columns(2)
-        
-        with eda_col1:
-            st.markdown("### Word Cloud")
-            st.markdown("*Term frequency distribution*")
-            
-            wordcloud_paths = ['images/wordcloud.png', 'figures/wordcloud.png', 'wordcloud.png']
-            wordcloud_found = False
-            
-            for path in wordcloud_paths:
-                if os.path.exists(path):
-                    st.image(path, use_container_width=True)
-                    wordcloud_found = True
-                    break
-            
-            if not wordcloud_found:
-                st.info("Upload wordcloud to: images/wordcloud.png")
-        
-        with eda_col2:
-            st.markdown("### N-gram Analysis")
-            st.markdown("*Frequent word sequences*")
-            
-            ngram_paths = ['images/ngram.png', 'figures/ngram.png', 'ngram.png']
-            ngram_found = False
-            
-            for path in ngram_paths:
-                if os.path.exists(path):
-                    st.image(path, use_container_width=True)
-                    ngram_found = True
-                    break
-            
-            if not ngram_found:
-                st.info("Upload ngram to: images/ngram.png")
+            # Recreating the metrics table from your data
+            metrics_df = pd.DataFrame({
+                "Metric": ["Precision (Positive)", "Precision (Negative)", "Recall (Positive)", "Recall (Negative)"],
+                "Score": ["93%", "62%", "97%", "84%"]
+            })
+            st.table(metrics_df)
 
-# ==========================================
-# FOOTER
-# ==========================================
+        st.markdown("### Topic Modeling (LDA)")
+        st.info("LDA (Latent Dirichlet Allocation) was selected over BERTopic for this application because it achieved **100% data coverage**, whereas BERTopic classified 45% of reviews as outliers.")
+
+    with tabs[1]:
+        st.subheader("Exploratory Data Analysis")
+        
+        c1, c2 = st.columns(2)
+        
+        # You need to make sure these image files exist in your folder
+        with c1:
+            st.markdown("**Word Cloud**")
+            if os.path.exists("wordcloud.png"):
+                st.image("wordcloud.png", use_container_width=True)
+            elif os.path.exists("images/wordcloud.png"):
+                st.image("images/wordcloud.png", use_container_width=True)
+            else:
+                st.warning("image 'wordcloud.png' not found.")
+                
+        with c2:
+            st.markdown("**N-Gram Analysis**")
+            if os.path.exists("ngram.png"):
+                st.image("ngram.png", use_container_width=True)
+            elif os.path.exists("images/ngram.png"):
+                st.image("images/ngram.png", use_container_width=True)
+            else:
+                st.warning("image 'ngram.png' not found.")
+
+# Footer
 st.markdown("---")
-st.markdown("""
-<div style="text-align: center; color: #5B7C99; padding: 1rem;">
-    <p><strong>KL Dining Assistant</strong> | Topic-Based Restaurant Recommendation Platform</p>
-    <p>LDA Topic Modeling & RoBERTa Sentiment Analysis</p>
-    <p>Master of Data Science Thesis | University of Malaya | 2025</p>
-    <p>Tanisya Pristi Azrelia (24088031)</p>
-</div>
-""", unsafe_allow_html=True)
+st.markdown("<div style='text-align: center; color: grey;'>KL Dining Assistant © 2025</div>", unsafe_allow_html=True)
